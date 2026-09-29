@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_prayer_widget"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- Top Header: Location, Date & Diyanet Tag -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/widget_location"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="📍 İstanbul, Fatih"
+            android:textColor="#F8FAFC"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_widget_pill_gold"
+            android:paddingLeft="6dp"
+            android:paddingTop="2dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="2dp"
+            android:text="DİYANET"
+            android:textColor="#D4AF37"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Main Content: Current Performable Prayer & Next Prayer Countdown -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="6dp"
+        android:layout_weight="1"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- Left: Current Performable Prayer -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_current_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ŞU AN KILINABİLİR"
+                android:textColor="#52B788"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_current_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Öğle Namazı"
+                android:textColor="#F8FAFC"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_current_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="13:00 - 16:18"
+                android:textColor="#A0BCB0"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Divider line (using FrameLayout which is strictly supported in RemoteViews) -->
+        <FrameLayout
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:background="#24553F" />
+
+        <!-- Right: Next Prayer & Countdown -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_next_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SIRADAKİ VAKTE KALAN"
+                android:textColor="#F1C40F"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_next_countdown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="02:14:35"
+                android:textColor="#F1C40F"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_next_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="İkindi (16:18)"
+                android:textColor="#A0BCB0"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom Times Row -->
+    <LinearLayout
+        android:id="@+id/widget_times_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_widget_pill"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="4dp"
+        android:paddingTop="4dp"
+        android:paddingRight="4dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:id="@+id/widget_time_imsak"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="İmsak\n05:26"
+            android:textColor="#F8FAFC"
+            android:textSize="9sp" />
+
+        <TextView
+            android:id="@+id/widget_time_gunes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Güneş\n06:50"
+            android:textColor="#A0BCB0"
+            android:textSize="9sp" />
+
+        <TextView
+            android:id="@+id/widget_time_ogle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Öğle\n13:00"
+            android:textColor="#F8FAFC"
+            android:textSize="9sp" />
+
+        <TextView
+            android:id="@+id/widget_time_ikindi"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="İkindi\n16:18"
+            android:textColor="#F8FAFC"
+            android:textSize="9sp" />
+
+        <TextView
+            android:id="@+id/widget_time_aksam"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Akşam\n18:56"
+            android:textColor="#F8FAFC"
+            android:textSize="9sp" />
+
+        <TextView
+            android:id="@+id/widget_time_yatsi"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Yatsı\n20:15"
+            android:textColor="#F8FAFC"
+            android:textSize="9sp" />
+    </LinearLayout>
+
+</LinearLayout>
