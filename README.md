@@ -1,5 +1,7 @@
 # 🕌 Namaz Vakti & İmsakiye (Diyanet Entegrasyonlu)
 
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/cmtrkr)
+
 Modern, minimalist ve manevi atmosferi yüksek Android Namaz Vakitleri, İmsakiye, Kıble Pusulası ve Zikirmatik uygulaması. %100 **Jetpack Compose (Material 3)**, **Kotlin Coroutines & Flow**, **Room Local Database** ve **Diyanet İşleri Başkanlığı API** altyapısıyla geliştirilmiştir.
 
 ![Platform](https://img.shields.io/badge/Platform-Android-green?style=flat-square&logo=android)
