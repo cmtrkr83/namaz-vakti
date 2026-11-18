@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import com.example.R
 import com.example.data.local.DailyWisdom
 import com.example.ui.theme.AppSerifFamily
 import com.example.ui.theme.SageCardSurface
@@ -90,18 +92,20 @@ fun DailyWisdomCard(
                     )
                 }
 
+                val clipLabel = stringResource(R.string.daily_wisdom_clip_label)
+                val copiedToast = stringResource(R.string.toast_text_copied)
                 IconButton(
                     onClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val clip = ClipData.newPlainText("Günün Ayet/Hadisi", "${wisdom.text}\n— ${wisdom.source}")
+                        val clip = ClipData.newPlainText(clipLabel, "${wisdom.text}\n— ${wisdom.source}")
                         clipboard.setPrimaryClip(clip)
-                        Toast.makeText(context, "Metin kopyalandı", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, copiedToast, Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.testTag("copy_wisdom_button")
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ContentCopy,
-                        contentDescription = "Kopyala",
+                        contentDescription = stringResource(R.string.cd_copy),
                         tint = TextSecondary,
                         modifier = Modifier.size(17.dp)
                     )

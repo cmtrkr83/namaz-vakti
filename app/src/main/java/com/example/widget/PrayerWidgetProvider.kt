@@ -13,6 +13,7 @@ import com.example.data.local.AppDatabase
 import com.example.data.local.PreferencesManager
 import com.example.data.local.PrayerTimeEntity
 import com.example.data.model.PrayerType
+import com.example.util.LocaleHelper
 import com.example.util.PrayerTimeHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -106,32 +107,35 @@ class PrayerWidgetProvider : AppWidgetProvider() {
         }
 
         private fun applyEntityToViews(context: Context, views: RemoteViews, entity: PrayerTimeEntity) {
-            val schedule = PrayerTimeHelper.buildSchedule(entity, Calendar.getInstance())
+            val prefs = PreferencesManager(context)
+            val locContext = LocaleHelper.wrapContext(context, prefs.languageCode)
+            val schedule = PrayerTimeHelper.buildSchedule(entity, Calendar.getInstance(), locContext)
 
             // Location
             val locationText = "📍 ${entity.cityName} - ${entity.districtName}"
             views.setTextViewText(R.id.widget_location, locationText)
 
-            // Current Performable Prayer (Şu an kılınabilir namaz)
-            val (performableName, performableRange) = getPerformablePrayerDetails(schedule.currentPrayer.type, entity)
+            // Current Performable Prayer
+            val (performableName, performableRange) = getPerformablePrayerDetails(locContext, schedule.currentPrayer.type, entity)
             views.setTextViewText(R.id.widget_current_name, performableName)
             views.setTextViewText(R.id.widget_current_range, performableRange)
 
-            // Next Prayer & Countdown (Sıradaki vakte kalan süre)
+            // Next Prayer & Countdown
             val countdownStr = PrayerTimeHelper.formatSecondsToCountdown(schedule.remainingSecondsToNext)
+            val nextPrayerName = locContext.getString(LocaleHelper.prayerNameRes(schedule.nextPrayer.type))
             views.setTextViewText(R.id.widget_next_countdown, countdownStr)
             views.setTextViewText(
                 R.id.widget_next_info,
-                "${schedule.nextPrayer.type.displayName} (${schedule.nextPrayer.time})"
+                "$nextPrayerName (${schedule.nextPrayer.time})"
             )
 
             // Strip times
-            views.setTextViewText(R.id.widget_time_imsak, "İmsak\n${entity.imsak}")
-            views.setTextViewText(R.id.widget_time_gunes, "Güneş\n${entity.gunes}")
-            views.setTextViewText(R.id.widget_time_ogle, "Öğle\n${entity.ogle}")
-            views.setTextViewText(R.id.widget_time_ikindi, "İkindi\n${entity.ikindi}")
-            views.setTextViewText(R.id.widget_time_aksam, "Akşam\n${entity.aksam}")
-            views.setTextViewText(R.id.widget_time_yatsi, "Yatsı\n${entity.yatsi}")
+            views.setTextViewText(R.id.widget_time_imsak, "${locContext.getString(R.string.prayer_imsak)}\n${entity.imsak}")
+            views.setTextViewText(R.id.widget_time_gunes, "${locContext.getString(R.string.prayer_gunes)}\n${entity.gunes}")
+            views.setTextViewText(R.id.widget_time_ogle, "${locContext.getString(R.string.prayer_ogle)}\n${entity.ogle}")
+            views.setTextViewText(R.id.widget_time_ikindi, "${locContext.getString(R.string.prayer_ikindi)}\n${entity.ikindi}")
+            views.setTextViewText(R.id.widget_time_aksam, "${locContext.getString(R.string.prayer_aksam)}\n${entity.aksam}")
+            views.setTextViewText(R.id.widget_time_yatsi, "${locContext.getString(R.string.prayer_yatsi)}\n${entity.yatsi}")
 
             // Tap root view to open the app
             val intent = Intent(context, MainActivity::class.java).apply {
@@ -147,22 +151,23 @@ class PrayerWidgetProvider : AppWidgetProvider() {
         }
 
         private fun getPerformablePrayerDetails(
+            locContext: Context,
             currentType: PrayerType,
             entity: PrayerTimeEntity
         ): Pair<String, String> {
             return when (currentType) {
-                PrayerType.IMSAK -> "Sabah Namazı" to "Vakit: ${entity.imsak} - ${entity.gunes}"
-                PrayerType.GUNES -> "Kuşluk / İşrak Vakti" to "Kerâhat sonrası: ${entity.gunes} - ${entity.ogle}"
-                PrayerType.OGLE -> "Öğle Namazı" to "Vakit: ${entity.ogle} - ${entity.ikindi}"
-                PrayerType.IKINDI -> "İkindi Namazı" to "Vakit: ${entity.ikindi} - ${entity.aksam}"
-                PrayerType.AKSAM -> "Akşam Namazı" to "Vakit: ${entity.aksam} - ${entity.yatsi}"
-                PrayerType.YATSI -> "Yatsı Namazı" to "Vakit: ${entity.yatsi} - ${entity.imsak}"
+                PrayerType.IMSAK -> locContext.getString(R.string.widget_sabah) to locContext.getString(R.string.widget_time_range_fmt, entity.imsak, entity.gunes)
+                PrayerType.GUNES -> locContext.getString(R.string.widget_kusluk) to locContext.getString(R.string.widget_after_kerahat_fmt, entity.gunes, entity.ogle)
+                PrayerType.OGLE -> locContext.getString(R.string.widget_ogle) to locContext.getString(R.string.widget_time_range_fmt, entity.ogle, entity.ikindi)
+                PrayerType.IKINDI -> locContext.getString(R.string.widget_ikindi) to locContext.getString(R.string.widget_time_range_fmt, entity.ikindi, entity.aksam)
+                PrayerType.AKSAM -> locContext.getString(R.string.widget_aksam) to locContext.getString(R.string.widget_time_range_fmt, entity.aksam, entity.yatsi)
+                PrayerType.YATSI -> locContext.getString(R.string.widget_yatsi) to locContext.getString(R.string.widget_time_range_fmt, entity.yatsi, entity.imsak)
             }
         }
 
         private fun getFallbackEntity(prefs: PreferencesManager): PrayerTimeEntity {
             val todayKisa = PrayerTimeHelper.getTodayDateKisa()
-            val todayUzun = PrayerTimeHelper.getTodayDateUzun()
+            val todayUzun = PrayerTimeHelper.getTodayDateUzun(LocaleHelper.resolveEffectiveLocale(prefs.languageCode))
             return PrayerTimeEntity(
                 id = "${prefs.districtId}_$todayKisa",
                 districtId = prefs.districtId,
@@ -170,7 +175,7 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 districtName = prefs.districtName,
                 miladiTarihKisa = todayKisa,
                 miladiTarihUzun = todayUzun,
-                hicriTarihUzun = "1448 Hicri",
+                hicriTarihUzun = "1448",
                 imsak = "05:26",
                 gunes = "06:50",
                 ogle = "13:00",

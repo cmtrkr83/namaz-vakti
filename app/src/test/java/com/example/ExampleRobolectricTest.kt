@@ -191,4 +191,27 @@ class ExampleRobolectricTest {
     // 19:10 -> 19:00 (WMO 0, night)
     assertEquals(com.example.data.model.WeatherCondition.CLEAR_NIGHT, mapped[com.example.data.model.PrayerType.YATSI]?.condition)
   }
+
+  @Test
+  fun `locale helper resolves separate language resource files and RTL accurately`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+
+    val trContext = com.example.util.LocaleHelper.wrapContext(context, "tr")
+    val enContext = com.example.util.LocaleHelper.wrapContext(context, "en")
+    val arContext = com.example.util.LocaleHelper.wrapContext(context, "ar")
+    val deContext = com.example.util.LocaleHelper.wrapContext(context, "de")
+    val frContext = com.example.util.LocaleHelper.wrapContext(context, "fr")
+
+    assertEquals("Vakitler", trContext.getString(R.string.nav_prayers))
+    assertEquals("Prayers", enContext.getString(R.string.nav_prayers))
+    assertEquals("المواقيت", arContext.getString(R.string.nav_prayers))
+    assertEquals("Gebetszeiten", deContext.getString(R.string.nav_prayers))
+    assertEquals("Horaires", frContext.getString(R.string.nav_prayers))
+
+    assertEquals(false, com.example.util.LocaleHelper.isRtl("tr"))
+    assertEquals(false, com.example.util.LocaleHelper.isRtl("en"))
+    assertEquals(true, com.example.util.LocaleHelper.isRtl("ar"))
+    assertEquals(false, com.example.util.LocaleHelper.isRtl("de"))
+    assertEquals(false, com.example.util.LocaleHelper.isRtl("fr"))
+  }
 }

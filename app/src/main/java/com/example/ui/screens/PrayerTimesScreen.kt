@@ -38,6 +38,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.outlined.Refresh
@@ -68,6 +69,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -76,8 +78,10 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.R
 import com.example.ui.components.CitySelectionSheet
 import com.example.ui.components.DailyWisdomCard
+import com.example.ui.components.LanguageSelectionSheet
 import com.example.ui.components.PrayerCountdownCard
 import com.example.ui.components.PrayerTimeRow
 import com.example.ui.theme.SageCardSurface
@@ -90,6 +94,7 @@ import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.WarmGoldAccent
 import com.example.ui.viewmodel.PrayerUiState
 import com.example.ui.viewmodel.PrayerViewModel
+import com.example.util.LocaleHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,7 +108,9 @@ fun PrayerTimesScreen(
     val activity = remember(context) { context.findActivity() }
 
     var showCitySheet by remember { mutableStateOf(false) }
+    var showLanguageSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val languageSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val locationPermissions = remember {
         arrayOf(
@@ -112,6 +119,7 @@ fun PrayerTimesScreen(
         )
     }
 
+    val permissionDeniedToast = stringResource(R.string.location_permission_denied_toast)
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -126,7 +134,7 @@ fun PrayerTimesScreen(
         } else {
             Toast.makeText(
                 context,
-                "Konum izni verilmedi. İsterseniz şehrinizi elle seçebilirsiniz.",
+                permissionDeniedToast,
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -240,7 +248,7 @@ fun PrayerTimesScreen(
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
                                 imageVector = Icons.Outlined.KeyboardArrowDown,
-                                contentDescription = "Konum değiştir",
+                                contentDescription = stringResource(R.string.cd_change_location),
                                 tint = TextSecondary,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -248,6 +256,17 @@ fun PrayerTimesScreen(
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = { showLanguageSheet = true },
+                            modifier = Modifier.testTag("language_picker_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Language,
+                                contentDescription = stringResource(R.string.cd_change_language),
+                                tint = SagePrimary
+                            )
+                        }
+
                         IconButton(
                             onClick = { triggerLocationDetection() },
                             enabled = !uiState.isDetectingLocation,
@@ -262,7 +281,7 @@ fun PrayerTimesScreen(
                             } else {
                                 Icon(
                                     imageVector = Icons.Outlined.MyLocation,
-                                    contentDescription = "Mevcut konumumu kullan",
+                                    contentDescription = stringResource(R.string.cd_use_current_location),
                                     tint = SagePrimary
                                 )
                             }
@@ -274,7 +293,7 @@ fun PrayerTimesScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Refresh,
-                                contentDescription = "Yenile",
+                                contentDescription = stringResource(R.string.cd_refresh),
                                 tint = SagePrimary,
                                 modifier = Modifier.rotate(rotationAngle)
                             )
@@ -325,17 +344,19 @@ fun PrayerTimesScreen(
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "Bulunduğunuz Şehre Özel Vakitler",
+                                        text = stringResource(R.string.location_banner_title),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = TextPrimary
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = if (isPermanentlyDenied) {
-                                            "Konum izni ayarlardan kapalı. Otomatik şehir tespiti için uygulama ayarlarından izin verebilirsiniz."
-                                        } else {
-                                            "Mevcut konumunuzu alarak bulunduğunuz il ve ilçenin Diyanet namaz vakitlerini otomatik getirelim."
-                                        },
+                                        text = stringResource(
+                                            if (isPermanentlyDenied) {
+                                                R.string.location_banner_desc_settings
+                                            } else {
+                                                R.string.location_banner_desc_prompt
+                                            }
+                                        ),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = TextSecondary
                                     )
@@ -356,7 +377,7 @@ fun PrayerTimesScreen(
                                         .testTag("dismiss_location_banner_button")
                                 ) {
                                     Text(
-                                        text = "Şimdilik Geç",
+                                        text = stringResource(R.string.location_banner_dismiss),
                                         style = MaterialTheme.typography.labelLarge,
                                         color = TextSecondary
                                     )
@@ -374,7 +395,13 @@ fun PrayerTimesScreen(
                                         .testTag("request_location_permission_banner_button")
                                 ) {
                                     Text(
-                                        text = if (isPermanentlyDenied) "Ayarları Aç" else "Konumu Kullan",
+                                        text = stringResource(
+                                            if (isPermanentlyDenied) {
+                                                R.string.location_banner_open_settings
+                                            } else {
+                                                R.string.location_banner_use_location
+                                            }
+                                        ),
                                         style = MaterialTheme.typography.labelLarge
                                     )
                                 }
@@ -459,7 +486,7 @@ fun PrayerTimesScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "GÜNÜN VAKİTLERİ",
+                        text = stringResource(R.string.section_todays_prayers),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = 1.3.sp,
@@ -467,7 +494,7 @@ fun PrayerTimesScreen(
                     )
 
                     Text(
-                        text = "Diyanet İşleri Başkanlığı",
+                        text = stringResource(R.string.source_diyanet_short),
                         style = MaterialTheme.typography.labelSmall,
                         color = TextMuted
                     )
@@ -509,6 +536,24 @@ fun PrayerTimesScreen(
             },
             onDistrictSelected = { id, name ->
                 viewModel.selectDistrict(id, name)
+            }
+        )
+    }
+
+    if (showLanguageSheet) {
+        LanguageSelectionSheet(
+            sheetState = languageSheetState,
+            currentLanguageCode = uiState.languageCode,
+            onDismiss = { showLanguageSheet = false },
+            onLanguageSelected = { lang ->
+                viewModel.setAppLanguage(lang.code)
+                val updatedContext = LocaleHelper.wrapContext(context, lang.code)
+                val langName = LocaleHelper.displayTitle(updatedContext, lang)
+                Toast.makeText(
+                    updatedContext,
+                    updatedContext.getString(R.string.language_changed_toast, langName),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         )
     }

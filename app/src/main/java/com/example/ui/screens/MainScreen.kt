@@ -1,6 +1,8 @@
 package com.example.ui.screens
 
+import android.app.Application
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -62,8 +64,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.ui.theme.SageCardSurface
 import com.example.ui.theme.SagePrimary
 import com.example.ui.theme.SereneSageGradient
@@ -72,25 +76,25 @@ import com.example.ui.viewmodel.PrayerViewModel
 
 sealed class AppNavTab(
     val index: Int,
-    val title: String,
+    @StringRes val titleRes: Int,
     val activeIcon: ImageVector,
     val inactiveIcon: ImageVector,
     val tag: String
 ) {
     object Prayers : AppNavTab(
-        0, "Vakitler", Icons.Filled.AccessTimeFilled, Icons.Outlined.AccessTime, "nav_prayers"
+        0, R.string.nav_prayers, Icons.Filled.AccessTimeFilled, Icons.Outlined.AccessTime, "nav_prayers"
     )
     object Monthly : AppNavTab(
-        1, "İmsakiye", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, "nav_monthly"
+        1, R.string.nav_monthly, Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, "nav_monthly"
     )
     object Qibla : AppNavTab(
-        2, "Kıble", Icons.Filled.Explore, Icons.Outlined.Explore, "nav_qibla"
+        2, R.string.nav_qibla, Icons.Filled.Explore, Icons.Outlined.Explore, "nav_qibla"
     )
     object Notifications : AppNavTab(
-        3, "Bildirimler", Icons.Filled.Notifications, Icons.Outlined.Notifications, "nav_notifications"
+        3, R.string.nav_notifications, Icons.Filled.Notifications, Icons.Outlined.Notifications, "nav_notifications"
     )
     object Tasbih : AppNavTab(
-        4, "Zikirmatik", Icons.Filled.TouchApp, Icons.Outlined.TouchApp, "nav_tasbih"
+        4, R.string.nav_tasbih, Icons.Filled.TouchApp, Icons.Outlined.TouchApp, "nav_tasbih"
     )
 }
 
@@ -251,12 +255,13 @@ private fun FloatingNavigationMenu(
                             )
                             .testTag(tab.tag)
                     ) {
+                        val tabTitle = stringResource(tab.titleRes)
                         Row(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = tab.title,
+                                text = tabTitle,
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
                                 color = if (isSelected) Color.White else TextPrimary
@@ -264,7 +269,7 @@ private fun FloatingNavigationMenu(
                             Spacer(modifier = Modifier.width(10.dp))
                             Icon(
                                 imageVector = if (isSelected) tab.activeIcon else tab.inactiveIcon,
-                                contentDescription = tab.title,
+                                contentDescription = tabTitle,
                                 tint = if (isSelected) Color.White else SagePrimary,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -290,7 +295,9 @@ private fun FloatingNavigationMenu(
         ) {
             Icon(
                 imageVector = if (isExpanded) Icons.Filled.Close else Icons.Filled.Menu,
-                contentDescription = if (isExpanded) "Menüyü kapat" else "Menüyü aç",
+                contentDescription = stringResource(
+                    if (isExpanded) R.string.cd_menu_close else R.string.cd_menu_open
+                ),
                 modifier = Modifier
                     .size(24.dp)
                     .rotate(iconRotation)

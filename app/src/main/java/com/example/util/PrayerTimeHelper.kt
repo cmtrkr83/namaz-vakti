@@ -1,5 +1,7 @@
 package com.example.util
 
+import android.content.Context
+import com.example.R
 import com.example.data.local.PrayerTimeEntity
 import com.example.data.model.DailyPrayerSchedule
 import com.example.data.model.PrayerItem
@@ -29,7 +31,8 @@ object PrayerTimeHelper {
 
     fun buildSchedule(
         entity: PrayerTimeEntity,
-        calendar: Calendar = Calendar.getInstance()
+        calendar: Calendar = Calendar.getInstance(),
+        context: Context? = null
     ): DailyPrayerSchedule {
         val nowHours = calendar.get(Calendar.HOUR_OF_DAY)
         val nowMinutes = calendar.get(Calendar.MINUTE)
@@ -51,9 +54,12 @@ object PrayerTimeHelper {
 
         val isKerahat = isMorningKerahat || isNoonKerahat || isEveningKerahat
         val kerahatReason = when {
-            isMorningKerahat -> "Güneş doğuşundan sonraki 45 dakika (Kerahat vakti)"
-            isNoonKerahat -> "Öğle ezanından önceki 45 dakika (Zeval kerahati)"
-            isEveningKerahat -> "Akşam ezanından önceki 45 dakika (İsfirar kerahati)"
+            isMorningKerahat -> context?.getString(R.string.kerahat_morning)
+                ?: "Güneş doğuşundan sonraki 45 dakika (Kerahat vakti)"
+            isNoonKerahat -> context?.getString(R.string.kerahat_noon)
+                ?: "Öğle ezanından önceki 45 dakika (Zeval kerahati)"
+            isEveningKerahat -> context?.getString(R.string.kerahat_evening)
+                ?: "Akşam ezanından önceki 45 dakika (İsfirar kerahati)"
             else -> null
         }
 
@@ -156,8 +162,8 @@ object PrayerTimeHelper {
         return sdf.format(Calendar.getInstance().time)
     }
 
-    fun getTodayDateUzun(): String {
-        val sdf = SimpleDateFormat("dd MMMM yyyy EEEE", Locale("tr", "TR"))
+    fun getTodayDateUzun(locale: Locale = Locale("tr", "TR")): String {
+        val sdf = SimpleDateFormat("dd MMMM yyyy EEEE", locale)
         return sdf.format(Calendar.getInstance().time)
     }
 }

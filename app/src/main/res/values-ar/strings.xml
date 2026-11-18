@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">مواقيت الصلاة</string>
+    <string name="widget_description">أداة مصغرة أنيقة تعرض الصلاة الحالية والعد التنازلي للصلاة القادمة</string>
+
+    <!-- Navigation & Menu -->
+    <string name="nav_prayers">المواقيت</string>
+    <string name="nav_monthly">الإمساكية</string>
+    <string name="nav_qibla">القبلة</string>
+    <string name="nav_notifications">التنبيهات</string>
+    <string name="nav_tasbih">المسبحة</string>
+    <string name="cd_menu_open">فتح القائمة</string>
+    <string name="cd_menu_close">إغلاق القائمة</string>
+
+    <!-- Prayer Names & Subtitles -->
+    <string name="prayer_imsak">الفجر</string>
+    <string name="prayer_imsak_sub">نهاية السحور</string>
+    <string name="prayer_gunes">الشروق</string>
+    <string name="prayer_gunes_sub">شروق الشمس</string>
+    <string name="prayer_ogle">الظهر</string>
+    <string name="prayer_ogle_sub">صلاة الظهر</string>
+    <string name="prayer_ikindi">العصر</string>
+    <string name="prayer_ikindi_sub">صلاة العصر</string>
+    <string name="prayer_aksam">المغرب</string>
+    <string name="prayer_aksam_sub">وقت الإفطار</string>
+    <string name="prayer_yatsi">العشاء</string>
+    <string name="prayer_yatsi_sub">صلاة العشاء</string>
+    <string name="prayer_default_name">الصلاة</string>
+
+    <!-- Weather Conditions -->
+    <string name="weather_clear">صافي</string>
+    <string name="weather_partly_cloudy">غائم جزئياً</string>
+    <string name="weather_cloudy">غائم</string>
+    <string name="weather_foggy">ضبابي</string>
+    <string name="weather_rainy">ممطر</string>
+    <string name="weather_snowy">مثلج</string>
+    <string name="weather_thunderstorm">عاصف</string>
+
+    <!-- Home / Prayer Times Screen -->
+    <string name="cd_change_location">تغيير الموقع</string>
+    <string name="cd_use_current_location">استخدام موقعي الحالي</string>
+    <string name="cd_refresh">تحديث</string>
+    <string name="cd_change_language">اختر اللغة</string>
+    <string name="location_permission_denied_toast">تم رفض إذن الموقع. يمكنك اختيار المدينة يدوياً.</string>
+    <string name="location_banner_title">مواقيت الصلاة لمدينتك</string>
+    <string name="location_banner_desc_settings">إذن الموقع متوقف من الإعدادات. يمكنك تفعيله من إعدادات التطبيق للتحديد التلقائي.</string>
+    <string name="location_banner_desc_prompt">اسمح بالوصول إلى الموقع لجلب مواقيت الصلاة لمنطقتك تلقائياً.</string>
+    <string name="location_banner_dismiss">ليس الآن</string>
+    <string name="location_banner_open_settings">فتح الإعدادات</string>
+    <string name="location_banner_use_location">استخدام الموقع</string>
+    <string name="section_todays_prayers">مواقيت اليوم</string>
+    <string name="source_diyanet_short">رئاسة الشؤون الدينية</string>
+    <string name="badge_now">الآن</string>
+    <string name="badge_next">التالي</string>
+    <string name="cd_notification_on">التنبيه مفعل</string>
+    <string name="cd_notification_off">التنبيه متوقف</string>
+
+    <!-- Countdown Card & Kerahat -->
+    <string name="countdown_remaining_fmt">المتبقي لصلاة %1$s</string>
+    <string name="cd_kerahat_warning">تنبيه وقت الكراهة</string>
+    <string name="kerahat_default">وقت الكراهة</string>
+    <string name="kerahat_morning">45 دقيقة بعد الشروق (وقت الكراهة)</string>
+    <string name="kerahat_noon">45 دقيقة قبل الظهر (كراهة الزوال)</string>
+    <string name="kerahat_evening">45 دقيقة قبل المغرب (كراهة الغروب)</string>
+    <string name="qibla_time_fmt">وقت القبلة: %1$s</string>
+    <string name="calendar_diyanet">تقويم ديانت</string>
+
+    <!-- City Selection Sheet -->
+    <string name="city_sheet_title">اختيار الموقع (ديانت)</string>
+    <string name="city_sheet_districts_fmt">مناطق %1$s</string>
+    <string name="cd_back">رجوع</string>
+    <string name="cd_close">إغلاق</string>
+    <string name="cd_selected">محدد</string>
+    <string name="detecting_location">جاري تحديد الموقع...</string>
+    <string name="use_current_location_gps">استخدام موقعي الحالي (GPS)</string>
+    <string name="search_city_hint">ابحث عن مدينة (مثل: إسطنبول، أنقرة)</string>
+
+    <!-- Daily Wisdom -->
+    <string name="daily_wisdom_clip_label">آية / حديث اليوم</string>
+    <string name="toast_text_copied">تم نسخ النص</string>
+    <string name="cd_copy">نسخ</string>
+    <string name="wisdom_title_ayah">آية اليوم</string>
+    <string name="wisdom_title_hadith">حديث اليوم</string>
+    <string name="wisdom_text_1">إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا.</string>
+    <string name="wisdom_source_1">سورة النساء، الآية 103</string>
+    <string name="wisdom_text_2">أحب الأعمال إلى الله الصلاة على وقتها.</string>
+    <string name="wisdom_source_2">صحيح البخاري 527، صحيح مسلم 85</string>
+    <string name="wisdom_text_3">أقم الصلاة طرفي النهار وزلفاً من الليل إن الحسنات يذهبن السيئات.</string>
+    <string name="wisdom_source_3">سورة هود، الآية 114</string>
+    <string name="wisdom_text_4">مفتاح الجنة الصلاة، ومفتاح الصلاة الوضوء.</string>
+    <string name="wisdom_source_4">سنن الترمذي، الطهارة 1</string>
+    <string name="wisdom_text_5">ألا بذكر الله تطمئن القلوب.</string>
+    <string name="wisdom_source_5">سورة الرعد، الآية 28</string>
+    <string name="wisdom_text_6">الصلوات الخمس كفارات لما بينهن ما اجتنبت الكبائر.</string>
+    <string name="wisdom_source_6">صحيح مسلم، الطهارة 16</string>
+    <string name="wisdom_text_7">واستعينوا بالصبر والصلاة وإنها لكبيرة إلا على الخاشعين.</string>
+    <string name="wisdom_source_7">سورة البقرة، الآية 45</string>
+
+    <!-- Monthly Schedule Screen -->
+    <string name="monthly_title">الإمساكية الشهرية</string>
+    <string name="monthly_badge">30 يوماً (ديانت)</string>
+    <string name="monthly_col_date">التاريخ</string>
+    <string name="monthly_today">اليوم</string>
+
+    <!-- Qibla Compass Screen -->
+    <string name="qibla_title">بوصلة القبلة</string>
+    <string name="qibla_gps_active">موقع GPS مباشر</string>
+    <string name="qibla_city_coords_fmt">%1$s (إحداثيات المدينة)</string>
+    <string name="qibla_gps_button">موقع GPS</string>
+    <string name="qibla_aligned">أنت متجه نحو القبلة • اتجاه الكعبة</string>
+    <string name="qibla_align_instruction">أمسك الهاتف بشكل مستوٍ وحاذِ الإبرة</string>
+    <string name="compass_north">الشمال</string>
+    <string name="qibla_angle_label">زاوية القبلة</string>
+    <string name="qibla_distance_label">المسافة إلى الكعبة</string>
+    <string name="qibla_distance_km_fmt">%1$d كم</string>
+    <string name="qibla_calibration_tip">للحصول على قياس دقيق، أبعد الهاتف عن الأغطية المعدنية والمغناطيسية وحرّكه بشكل رقم 8 للمعايرة.</string>
+
+    <!-- Notification & Language Settings -->
+    <string name="notif_title">التنبيهات والإعدادات</string>
+    <string name="notif_subtitle">تخصيص تنبيهات الصلاة ولغة التطبيق</string>
+    <string name="notif_test_button">تجربة</string>
+    <string name="cd_test_notification">تجربة التنبيه</string>
+    <string name="notif_permission_title">إذن الإشعارات مطلوب</string>
+    <string name="notif_permission_desc">يرجى السماح بالإشعارات لتنبيهات مواقيت الصلاة.</string>
+    <string name="notif_permission_grant">سماح</string>
+    <string name="section_reminder_time">وقت التذكير</string>
+    <string name="notif_offset_question">كم دقيقة قبل الأذان تريد التذكير؟</string>
+    <string name="offset_exact">في الوقت تماماً</string>
+    <string name="offset_minutes_fmt">قبل %1$d د</string>
+    <string name="section_sound_mode">الصوت ونوع التنبيه</string>
+    <string name="sound_ezan_title">أذان / تنبيه صوتي</string>
+    <string name="sound_ezan_sub">إشعار صوتي واضح عند دخول الوقت</string>
+    <string name="sound_bip_title">نغمة قصيرة</string>
+    <string name="sound_bip_sub">نغمة تنبيه هادئة وقصيرة</string>
+    <string name="sound_vibrate_title">اهتزاز فقط</string>
+    <string name="sound_vibrate_sub">تذكير صامت بالاهتزاز</string>
+    <string name="section_prayer_reminders">تنبيهات الصلوات</string>
+    <string name="prayer_label_imsak">الفجر (السحور)</string>
+    <string name="prayer_label_gunes">الشروق</string>
+    <string name="prayer_label_ogle">صلاة الظهر</string>
+    <string name="prayer_label_ikindi">صلاة العصر</string>
+    <string name="prayer_label_aksam">المغرب (الإفطار)</string>
+    <string name="prayer_label_yatsi">صلاة العشاء</string>
+    <string name="repeat_daily_title">تحديث يومي تلقائي</string>
+    <string name="repeat_daily_sub">تُجدول المنبهات يومياً حسب المواقيت الجديدة</string>
+    <string name="notif_hint_off">التنبيه متوقف</string>
+    <string name="notif_hint_exact">التنبيه في الوقت تماماً</string>
+    <string name="notif_hint_before_fmt">التنبيه قبل %1$d دقيقة</string>
+    <string name="notif_hint_exact_time_fmt">التنبيه في الوقت (%1$s)</string>
+    <string name="notif_hint_scheduled_fmt">التذكير الساعة %1$s (قبل %2$d د)</string>
+    <string name="test_notif_title">تذكير الصلاة (تجربة)</string>
+    <string name="test_notif_message">تمت تجربة إعدادات تنبيه مواقيت الصلاة بنجاح.</string>
+    <string name="test_notif_sent">تم إرسال التنبيه التجريبي!</string>
+    <string name="notif_channel_name">تنبيهات مواقيت الصلاة</string>
+    <string name="notif_channel_desc">إشعارات الأذان وتذكير الصلوات</string>
+    <string name="alarm_title_before_fmt">بقي %2$d دقيقة على صلاة %1$s</string>
+    <string name="alarm_title_now_fmt">دخل وقت صلاة %1$s</string>
+    <string name="alarm_msg_before_fmt">سيبدأ وقت %2$s عند الساعة %1$s. استعد للصلاة.</string>
+    <string name="alarm_msg_now_fmt">حان الآن وقت %1$s (%2$s). حي على الصلاة، حي على الفلاح.</string>
+
+    <!-- Language Selector -->
+    <string name="section_app_language">لغة التطبيق</string>
+    <string name="language_card_title">اللغة</string>
+    <string name="language_card_subtitle">استخدم التطبيق باللغة التي تفضلها</string>
+    <string name="language_sheet_title">اختر اللغة</string>
+    <string name="language_sheet_subtitle">يتم تطبيق التغيير فوراً في جميع الشاشات</string>
+    <string name="language_system">لغة النظام (تلقائي)</string>
+    <string name="language_changed_toast">تم تحديث لغة التطبيق: %1$s</string>
+
+    <!-- Tasbih Screen -->
+    <string name="tasbih_title">المسبحة</string>
+    <string name="tasbih_subtitle">مسبحة إلكترونية هادئة وبسيطة</string>
+    <string name="cd_reset">إعادة تعيين</string>
+    <string name="tasbih_target_round_fmt">الهدف: %1$d • الدورة: %2$d</string>
+    <string name="tasbih_tap">اضغط</string>
+    <string name="dhikr_subhanallah">سبحان الله</string>
+    <string name="dhikr_alhamdulillah">الحمد لله</string>
+    <string name="dhikr_allahuakbar">الله أكبر</string>
+    <string name="dhikr_lailahaillallah">لا إله إلا الله</string>
+    <string name="dhikr_astaghfirullah">أستغفر الله</string>
+    <string name="dhikr_salawat">الصلاة على النبي</string>
+
+    <!-- Errors & Status -->
+    <string name="error_loading_times">حدث خطأ أثناء تحميل المواقيت.</string>
+    <string name="location_updated_fmt">تم تحديث المواقيت لموقع %1$s، %2$s.</string>
+    <string name="error_location_detect">تعذر تحديد الموقع.</string>
+
+    <!-- Widget -->
+    <string name="widget_sabah">صلاة الفجر</string>
+    <string name="widget_kusluk">وقت الضحى / الإشراق</string>
+    <string name="widget_ogle">صلاة الظهر</string>
+    <string name="widget_ikindi">صلاة العصر</string>
+    <string name="widget_aksam">صلاة المغرب</string>
+    <string name="widget_yatsi">صلاة العشاء</string>
+    <string name="widget_time_range_fmt">الوقت: %1$s - %2$s</string>
+    <string name="widget_after_kerahat_fmt">بعد الكراهة: %1$s - %2$s</string>
+    <string name="widget_hicri_fallback">1448 هـ</string>
+</resources>

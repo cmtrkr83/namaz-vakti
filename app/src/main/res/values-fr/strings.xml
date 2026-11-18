@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Namaz Vakti</string>
+    <string name="widget_description">Widget minimaliste affichant la prière actuelle et le compte à rebours</string>
+
+    <!-- Navigation & Menu -->
+    <string name="nav_prayers">Horaires</string>
+    <string name="nav_monthly">Calendrier</string>
+    <string name="nav_qibla">Qibla</string>
+    <string name="nav_notifications">Alertes</string>
+    <string name="nav_tasbih">Tasbih</string>
+    <string name="cd_menu_open">Ouvrir le menu</string>
+    <string name="cd_menu_close">Fermer le menu</string>
+
+    <!-- Prayer Names & Subtitles -->
+    <string name="prayer_imsak">Fajr</string>
+    <string name="prayer_imsak_sub">Fin du Sahur</string>
+    <string name="prayer_gunes">Lever du soleil</string>
+    <string name="prayer_gunes_sub">Lever du soleil</string>
+    <string name="prayer_ogle">Dhuhr</string>
+    <string name="prayer_ogle_sub">Prière de midi</string>
+    <string name="prayer_ikindi">Asr</string>
+    <string name="prayer_ikindi_sub">Prière de l\'après-midi</string>
+    <string name="prayer_aksam">Maghrib</string>
+    <string name="prayer_aksam_sub">Heure de l\'Iftar</string>
+    <string name="prayer_yatsi">Isha</string>
+    <string name="prayer_yatsi_sub">Prière de la nuit</string>
+    <string name="prayer_default_name">Prière</string>
+
+    <!-- Weather Conditions -->
+    <string name="weather_clear">Dégagé</string>
+    <string name="weather_partly_cloudy">Partiellement nuageux</string>
+    <string name="weather_cloudy">Nuageux</string>
+    <string name="weather_foggy">Brumeux</string>
+    <string name="weather_rainy">Pluvieux</string>
+    <string name="weather_snowy">Neigeux</string>
+    <string name="weather_thunderstorm">Orageux</string>
+
+    <!-- Home / Prayer Times Screen -->
+    <string name="cd_change_location">Changer de lieu</string>
+    <string name="cd_use_current_location">Utiliser ma position actuelle</string>
+    <string name="cd_refresh">Actualiser</string>
+    <string name="cd_change_language">Choisir la langue</string>
+    <string name="location_permission_denied_toast">Permission de localisation refusée. Vous pouvez choisir votre ville manuellement.</string>
+    <string name="location_banner_title">Horaires adaptés à votre ville</string>
+    <string name="location_banner_desc_settings">La localisation est désactivée dans les paramètres. Activez-la pour détecter votre ville automatiquement.</string>
+    <string name="location_banner_desc_prompt">Autorisez l\'accès à la position pour afficher automatiquement les horaires de votre ville.</string>
+    <string name="location_banner_dismiss">Plus tard</string>
+    <string name="location_banner_open_settings">Paramètres</string>
+    <string name="location_banner_use_location">Localiser</string>
+    <string name="section_todays_prayers">HORAIRES DU JOUR</string>
+    <string name="source_diyanet_short">Diyanet</string>
+    <string name="badge_now">ACTUEL</string>
+    <string name="badge_next">SUIVANTE</string>
+    <string name="cd_notification_on">Notification activée</string>
+    <string name="cd_notification_off">Notification désactivée</string>
+
+    <!-- Countdown Card & Kerahat -->
+    <string name="countdown_remaining_fmt">TEMPS RESTANT POUR %1$s</string>
+    <string name="cd_kerahat_warning">Alerte Kerahat</string>
+    <string name="kerahat_default">Temps de Kerahat</string>
+    <string name="kerahat_morning">45 minutes après le lever du soleil (Kerahat)</string>
+    <string name="kerahat_noon">45 minutes avant Dhuhr (Zawal Kerahat)</string>
+    <string name="kerahat_evening">45 minutes avant Maghrib (Kerahat du soir)</string>
+    <string name="qibla_time_fmt">Heure Qibla : %1$s</string>
+    <string name="calendar_diyanet">Calendrier Diyanet</string>
+
+    <!-- City Selection Sheet -->
+    <string name="city_sheet_title">Choix du lieu (Diyanet)</string>
+    <string name="city_sheet_districts_fmt">Districts de %1$s</string>
+    <string name="cd_back">Retour</string>
+    <string name="cd_close">Fermer</string>
+    <string name="cd_selected">Sélectionné</string>
+    <string name="detecting_location">Détection de la position...</string>
+    <string name="use_current_location_gps">Utiliser ma position actuelle (GPS)</string>
+    <string name="search_city_hint">Rechercher une ville (ex : Istanbul, Ankara)</string>
+
+    <!-- Daily Wisdom -->
+    <string name="daily_wisdom_clip_label">Verset / Hadith du jour</string>
+    <string name="toast_text_copied">Texte copié</string>
+    <string name="cd_copy">Copier</string>
+    <string name="wisdom_title_ayah">Verset du jour</string>
+    <string name="wisdom_title_hadith">Hadith du jour</string>
+    <string name="wisdom_text_1">La prière demeure, pour les croyants, une prescription, à des temps déterminés.</string>
+    <string name="wisdom_source_1">Sourate An-Nisa, Verset 103</string>
+    <string name="wisdom_text_2">L\'œuvre la plus aimée d\'Allah est la prière accomplie à son heure.</string>
+    <string name="wisdom_source_2">Boukhari, Mawaqit 5 ; Mouslim, Iman 137</string>
+    <string name="wisdom_text_3">Accomplis la prière aux deux extrémités du jour et à certaines heures de la nuit. Les bonnes œuvres dissipent les mauvaises.</string>
+    <string name="wisdom_source_3">Sourate Hud, Verset 114</string>
+    <string name="wisdom_text_4">La clé du Paradis est la prière, et la clé de la prière est l\'ablution.</string>
+    <string name="wisdom_source_4">Tirmidhi, Taharah 1</string>
+    <string name="wisdom_text_5">N\'est-ce point par l\'évocation d\'Allah que se tranquillisent les cœurs ?</string>
+    <string name="wisdom_source_5">Sourate Ar-Ra\'d, Verset 28</string>
+    <string name="wisdom_text_6">Les cinq prières quotidiennes effacent les péchés commis entre elles, tant que les péchés majeurs sont évités.</string>
+    <string name="wisdom_source_6">Mouslim, Taharah 16</string>
+    <string name="wisdom_text_7">Cherchez secours dans l\'endurance et la prière ; certes, elle est lourde sauf pour les humbles.</string>
+    <string name="wisdom_source_7">Sourate Al-Baqara, Verset 45</string>
+
+    <!-- Monthly Schedule Screen -->
+    <string name="monthly_title">Calendrier mensuel</string>
+    <string name="monthly_badge">30 jours Diyanet</string>
+    <string name="monthly_col_date">Date</string>
+    <string name="monthly_today">Aujourd\'hui</string>
+
+    <!-- Qibla Compass Screen -->
+    <string name="qibla_title">Boussole Qibla</string>
+    <string name="qibla_gps_active">Position GPS en direct</string>
+    <string name="qibla_city_coords_fmt">%1$s (Coordonnées de la ville)</string>
+    <string name="qibla_gps_button">Position GPS</string>
+    <string name="qibla_aligned">Orienté vers la Qibla • Direction de la Kaaba</string>
+    <string name="qibla_align_instruction">Tenez le téléphone à plat et alignez l\'aiguille</string>
+    <string name="compass_north">NORD</string>
+    <string name="qibla_angle_label">Angle Qibla</string>
+    <string name="qibla_distance_label">Distance à la Kaaba</string>
+    <string name="qibla_distance_km_fmt">%1$d km</string>
+    <string name="qibla_calibration_tip">Éloignez le téléphone des étuis métalliques ou magnétiques et tracez un huit (8) dans l\'air pour le calibrer.</string>
+
+    <!-- Notification & Language Settings -->
+    <string name="notif_title">Alertes &amp; Paramètres</string>
+    <string name="notif_subtitle">Gérer les rappels de prière et la langue</string>
+    <string name="notif_test_button">Tester</string>
+    <string name="cd_test_notification">Tester la notification</string>
+    <string name="notif_permission_title">Autorisation requise</string>
+    <string name="notif_permission_desc">Autorisez les notifications pour recevoir les rappels.</string>
+    <string name="notif_permission_grant">Autoriser</string>
+    <string name="section_reminder_time">DÉLAI DU RAPPEL</string>
+    <string name="notif_offset_question">Combien de temps avant l\'heure voulez-vous être averti ?</string>
+    <string name="offset_exact">À l\'heure</string>
+    <string name="offset_minutes_fmt">%1$d min avant</string>
+    <string name="section_sound_mode">SON ET TYPE D\'ALERTE</string>
+    <string name="sound_ezan_title">Adhan / Alerte mélodique</string>
+    <string name="sound_ezan_sub">Notification sonore claire à l\'heure de la prière</string>
+    <string name="sound_bip_title">Sonnerie courte</string>
+    <string name="sound_bip_sub">Tonalité système calme et brève</string>
+    <string name="sound_vibrate_title">Vibration uniquement</string>
+    <string name="sound_vibrate_sub">Rappel discret par vibration</string>
+    <string name="section_prayer_reminders">RAPPELS PAR PRIÈRE</string>
+    <string name="prayer_label_imsak">Fajr (Sahur)</string>
+    <string name="prayer_label_gunes">Lever du soleil</string>
+    <string name="prayer_label_ogle">Prière de Dhuhr</string>
+    <string name="prayer_label_ikindi">Prière d\'Asr</string>
+    <string name="prayer_label_aksam">Maghrib (Iftar)</string>
+    <string name="prayer_label_yatsi">Prière d\'Isha</string>
+    <string name="repeat_daily_title">Renouveler chaque jour</string>
+    <string name="repeat_daily_sub">Les alarmes sont reprogrammées chaque jour</string>
+    <string name="notif_hint_off">Notification désactivée</string>
+    <string name="notif_hint_exact">Rappel à l\'heure exacte</string>
+    <string name="notif_hint_before_fmt">Rappel %1$d min avant</string>
+    <string name="notif_hint_exact_time_fmt">Rappel à l\'heure (%1$s)</string>
+    <string name="notif_hint_scheduled_fmt">Rappel à %1$s (%2$d min avant)</string>
+    <string name="test_notif_title">Rappel de prière (Test)</string>
+    <string name="test_notif_message">Vos paramètres de notification ont été testés avec succès.</string>
+    <string name="test_notif_sent">Notification de test envoyée !</string>
+    <string name="notif_channel_name">Notifications des prières</string>
+    <string name="notif_channel_desc">Alertes de l\'Adhan et rappels de prière</string>
+    <string name="alarm_title_before_fmt">%2$d minutes avant %1$s</string>
+    <string name="alarm_title_now_fmt">L\'heure de %1$s est entrée</string>
+    <string name="alarm_msg_before_fmt">%2$s commence à %1$s. Préparez-vous pour la prière.</string>
+    <string name="alarm_msg_now_fmt">L\'heure de %1$s est arrivée (%2$s). Venez à la prière.</string>
+
+    <!-- Language Selector -->
+    <string name="section_app_language">LANGUE DE L\'APPLICATION</string>
+    <string name="language_card_title">Langue</string>
+    <string name="language_card_subtitle">Utilisez l\'application dans la langue de votre choix</string>
+    <string name="language_sheet_title">Choisir la langue</string>
+    <string name="language_sheet_subtitle">Appliqué instantanément dans toute l\'application</string>
+    <string name="language_system">Langue du système (Auto)</string>
+    <string name="language_changed_toast">Langue mise à jour : %1$s</string>
+
+    <!-- Tasbih Screen -->
+    <string name="tasbih_title">Compteur Tasbih</string>
+    <string name="tasbih_subtitle">Compteur de dhikr numérique simple et apaisant</string>
+    <string name="cd_reset">Réinitialiser</string>
+    <string name="tasbih_target_round_fmt">Objectif : %1$d • Tour : %2$d</string>
+    <string name="tasbih_tap">TOUCHER</string>
+    <string name="dhikr_subhanallah">SubhanAllah</string>
+    <string name="dhikr_alhamdulillah">Alhamdulillah</string>
+    <string name="dhikr_allahuakbar">Allahu Akbar</string>
+    <string name="dhikr_lailahaillallah">La Ilaha Illallah</string>
+    <string name="dhikr_astaghfirullah">Astaghfirullah</string>
+    <string name="dhikr_salawat">Salawat</string>
+
+    <!-- Errors & Status -->
+    <string name="error_loading_times">Erreur lors du chargement des horaires.</string>
+    <string name="location_updated_fmt">Horaires mis à jour pour %1$s, %2$s.</string>
+    <string name="error_location_detect">Impossible de détecter la position.</string>
+
+    <!-- Widget -->
+    <string name="widget_sabah">Prière du Fajr</string>
+    <string name="widget_kusluk">Temps de Duha / Ishraq</string>
+    <string name="widget_ogle">Prière de Dhuhr</string>
+    <string name="widget_ikindi">Prière d\'Asr</string>
+    <string name="widget_aksam">Prière de Maghrib</string>
+    <string name="widget_yatsi">Prière d\'Isha</string>
+    <string name="widget_time_range_fmt">Horaire : %1$s - %2$s</string>
+    <string name="widget_after_kerahat_fmt">Après Kerahat : %1$s - %2$s</string>
+    <string name="widget_hicri_fallback">1448 AH</string>
+</resources>

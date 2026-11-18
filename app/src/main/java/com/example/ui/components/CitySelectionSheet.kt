@@ -41,8 +41,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.data.local.TurkishCitiesData
 import com.example.data.local.TurkishCity
 import com.example.data.model.DistrictDto
@@ -103,19 +105,19 @@ fun CitySelectionSheet(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Geri",
+                            contentDescription = stringResource(R.string.cd_back),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     Text(
-                        text = "${selectedCityForDistricts?.name} İlçeleri",
+                        text = stringResource(R.string.city_sheet_districts_fmt, selectedCityForDistricts?.name ?: ""),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 } else {
                     Text(
-                        text = "Konum Seçimi (Diyanet)",
+                        text = stringResource(R.string.city_sheet_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -128,7 +130,7 @@ fun CitySelectionSheet(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Kapat",
+                        contentDescription = stringResource(R.string.cd_close),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -162,7 +164,7 @@ fun CitySelectionSheet(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Konum Tespit Ediliyor...",
+                                text = stringResource(R.string.detecting_location),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = SagePrimary
@@ -176,7 +178,7 @@ fun CitySelectionSheet(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Mevcut Konumumu Kullan (GPS)",
+                                text = stringResource(R.string.use_current_location_gps),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = SagePrimary
@@ -191,7 +193,7 @@ fun CitySelectionSheet(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Şehir Ara (örn: İstanbul, Ankara, İzmir)") },
+                    placeholder = { Text(stringResource(R.string.search_city_hint)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
@@ -256,7 +258,7 @@ fun CitySelectionSheet(
                                 if (isSelected) {
                                     Icon(
                                         imageVector = Icons.Default.Check,
-                                        contentDescription = "Seçili",
+                                        contentDescription = stringResource(R.string.cd_selected),
                                         tint = SagePrimary,
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -311,7 +313,7 @@ fun CitySelectionSheet(
                                     if (isSelected) {
                                         Icon(
                                             imageVector = Icons.Default.Check,
-                                            contentDescription = "Seçili",
+                                            contentDescription = stringResource(R.string.cd_selected),
                                             tint = SagePrimary,
                                             modifier = Modifier.size(20.dp)
                                         )

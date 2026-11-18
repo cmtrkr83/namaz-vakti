@@ -1,4 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Namaz Vakti</string>
     <string name="widget_description">Şu an kılınabilir namazı ve sıradaki vakte kalan süreyi gösteren minimalist widget</string>
+
+    <!-- Navigation & Menu -->
+    <string name="nav_prayers">Vakitler</string>
+    <string name="nav_monthly">İmsakiye</string>
+    <string name="nav_qibla">Kıble</string>
+    <string name="nav_notifications">Bildirimler</string>
+    <string name="nav_tasbih">Zikirmatik</string>
+    <string name="cd_menu_open">Menüyü aç</string>
+    <string name="cd_menu_close">Menüyü kapat</string>
+
+    <!-- Prayer Names & Subtitles -->
+    <string name="prayer_imsak">İmsak</string>
+    <string name="prayer_imsak_sub">Sahur Bitişi</string>
+    <string name="prayer_gunes">Güneş</string>
+    <string name="prayer_gunes_sub">Güneş Doğuşu</string>
+    <string name="prayer_ogle">Öğle</string>
+    <string name="prayer_ogle_sub">Öğle Vakti</string>
+    <string name="prayer_ikindi">İkindi</string>
+    <string name="prayer_ikindi_sub">İkindi Vakti</string>
+    <string name="prayer_aksam">Akşam</string>
+    <string name="prayer_aksam_sub">İftar Vakti</string>
+    <string name="prayer_yatsi">Yatsı</string>
+    <string name="prayer_yatsi_sub">Yatsı Vakti</string>
+    <string name="prayer_default_name">Namaz</string>
+
+    <!-- Weather Conditions -->
+    <string name="weather_clear">Açık</string>
+    <string name="weather_partly_cloudy">Parçalı Bulutlu</string>
+    <string name="weather_cloudy">Bulutlu</string>
+    <string name="weather_foggy">Sisli</string>
+    <string name="weather_rainy">Yağmurlu</string>
+    <string name="weather_snowy">Karlı</string>
+    <string name="weather_thunderstorm">Fırtınalı</string>
+
+    <!-- Home / Prayer Times Screen -->
+    <string name="cd_change_location">Konum değiştir</string>
+    <string name="cd_use_current_location">Mevcut konumumu kullan</string>
+    <string name="cd_refresh">Yenile</string>
+    <string name="cd_change_language">Dil seçimi</string>
+    <string name="location_permission_denied_toast">Konum izni verilmedi. İsterseniz şehrinizi elle seçebilirsiniz.</string>
+    <string name="location_banner_title">Bulunduğunuz Şehre Özel Vakitler</string>
+    <string name="location_banner_desc_settings">Konum izni ayarlardan kapalı. Otomatik şehir tespiti için uygulama ayarlarından izin verebilirsiniz.</string>
+    <string name="location_banner_desc_prompt">Mevcut konumunuzu alarak bulunduğunuz il ve ilçenin Diyanet namaz vakitlerini otomatik getirelim.</string>
+    <string name="location_banner_dismiss">Şimdilik Geç</string>
+    <string name="location_banner_open_settings">Ayarları Aç</string>
+    <string name="location_banner_use_location">Konumu Kullan</string>
+    <string name="section_todays_prayers">GÜNÜN VAKİTLERİ</string>
+    <string name="source_diyanet_short">Diyanet İşleri Başkanlığı</string>
+    <string name="badge_now">ŞU AN</string>
+    <string name="badge_next">SIRADAKİ</string>
+    <string name="cd_notification_on">Bildirim açık</string>
+    <string name="cd_notification_off">Bildirim kapalı</string>
+
+    <!-- Countdown Card & Kerahat -->
+    <string name="countdown_remaining_fmt">%1$s VAKTİNE KALAN</string>
+    <string name="cd_kerahat_warning">Kerahat Uyarısı</string>
+    <string name="kerahat_default">Kerahat Vakti</string>
+    <string name="kerahat_morning">Güneş doğuşundan sonraki 45 dakika (Kerahat vakti)</string>
+    <string name="kerahat_noon">Öğle ezanından önceki 45 dakika (Zeval kerahati)</string>
+    <string name="kerahat_evening">Akşam ezanından önceki 45 dakika (İsfirar kerahati)</string>
+    <string name="qibla_time_fmt">Kıble Saati: %1$s</string>
+    <string name="calendar_diyanet">Diyanet Takvimi</string>
+
+    <!-- City Selection Sheet -->
+    <string name="city_sheet_title">Konum Seçimi (Diyanet)</string>
+    <string name="city_sheet_districts_fmt">%1$s İlçeleri</string>
+    <string name="cd_back">Geri</string>
+    <string name="cd_close">Kapat</string>
+    <string name="cd_selected">Seçili</string>
+    <string name="detecting_location">Konum Tespit Ediliyor...</string>
+    <string name="use_current_location_gps">Mevcut Konumumu Kullan (GPS)</string>
+    <string name="search_city_hint">Şehir Ara (örn: İstanbul, Ankara, İzmir)</string>
+
+    <!-- Daily Wisdom -->
+    <string name="daily_wisdom_clip_label">Günün Ayet/Hadisi</string>
+    <string name="toast_text_copied">Metin kopyalandı</string>
+    <string name="cd_copy">Kopyala</string>
+    <string name="wisdom_title_ayah">Günün Ayet-i Kerimesi</string>
+    <string name="wisdom_title_hadith">Günün Hadis-i Şerifi</string>
+    <string name="wisdom_text_1">Şüphesiz namaz, müminler üzerine belirli vakitlerde farz kılınmıştır.</string>
+    <string name="wisdom_source_1">Nisâ Suresi, 103. Ayet</string>
+    <string name="wisdom_text_2">Allah katında amellerin en sevimlisi, vaktinde kılınan namazdır.</string>
+    <string name="wisdom_source_2">Buhârî, Mevâkît 5; Müslim, Îmân 137</string>
+    <string name="wisdom_text_3">Gündüzün iki ucunda ve gecenin gündüze yakın zamanlarında namaz kıl. Muhakkak ki iyilikler kötülükleri yok eder.</string>
+    <string name="wisdom_source_3">Hûd Suresi, 114. Ayet</string>
+    <string name="wisdom_text_4">Cennetin anahtarı namaz, namazın anahtarı ise abdesttir.</string>
+    <string name="wisdom_source_4">Tirmizî, Tahâret 1</string>
+    <string name="wisdom_text_5">Bilesiniz ki, kalpler ancak Allah\'ı anmakla huzur bulur.</string>
+    <string name="wisdom_source_5">Ra\'d Suresi, 28. Ayet</string>
+    <string name="wisdom_text_6">Büyük günahlardan kaçınıldığı müddetçe, beş vakit namaz aralarındaki günahlara kefarettir.</string>
+    <string name="wisdom_source_6">Müslim, Tahâret 16</string>
+    <string name="wisdom_text_7">Sabır ve namazla Allah\'tan yardım isteyin. Şüphesiz namaz, Allah\'a saygı duyanlardan başkasına ağır gelir.</string>
+    <string name="wisdom_source_7">Bakara Suresi, 45. Ayet</string>
+
+    <!-- Monthly Schedule Screen -->
+    <string name="monthly_title">Aylık İmsakiye</string>
+    <string name="monthly_badge">30 Günlük Diyanet</string>
+    <string name="monthly_col_date">Tarih</string>
+    <string name="monthly_today">Bugün</string>
+
+    <!-- Qibla Compass Screen -->
+    <string name="qibla_title">Kıble Pusulası</string>
+    <string name="qibla_gps_active">Canlı GPS Konumu</string>
+    <string name="qibla_city_coords_fmt">%1$s (Şehir Koordinatları)</string>
+    <string name="qibla_gps_button">GPS Konumu</string>
+    <string name="qibla_aligned">Kıbleye Yöneldiniz • Kâbe İstikameti</string>
+    <string name="qibla_align_instruction">Telefonu düz tutup iğneyi hizalayın</string>
+    <string name="compass_north">KUZEY</string>
+    <string name="qibla_angle_label">Kıble Açısı</string>
+    <string name="qibla_distance_label">Kâbe\'ye Mesafe</string>
+    <string name="qibla_distance_km_fmt">%1$d km</string>
+    <string name="qibla_calibration_tip">Doğru ölçüm için cihazı metal ve manyetik kılıflardan uzak tutun; havada sekiz (8) çizerek kalibre edebilirsiniz.</string>
+
+    <!-- Notification & Language Settings -->
+    <string name="notif_title">Bildirim ve Ayarlar</string>
+    <string name="notif_subtitle">Ezan, vakit hatırlatıcıları ve dil tercihleri</string>
+    <string name="notif_test_button">Test Et</string>
+    <string name="cd_test_notification">Bildirimi test et</string>
+    <string name="notif_permission_title">Bildirim İzni Gerekli</string>
+    <string name="notif_permission_desc">Vakit hatırlatıcıları için sistem iznini onaylayın.</string>
+    <string name="notif_permission_grant">İzin Ver</string>
+    <string name="section_reminder_time">HATIRLATMA ZAMANI</string>
+    <string name="notif_offset_question">Vakitten ne kadar önce haber verilsin?</string>
+    <string name="offset_exact">Tam vaktinde</string>
+    <string name="offset_minutes_fmt">%1$d dk önce</string>
+    <string name="section_sound_mode">SES VE UYARI TÜRÜ</string>
+    <string name="sound_ezan_title">Ezan / Melodik Uyarı</string>
+    <string name="sound_ezan_sub">Vakit girdiğinde belirgin sesli bildirim</string>
+    <string name="sound_bip_title">Kısa Bildirim Sesi</string>
+    <string name="sound_bip_sub">Sakin ve kısa sistem uyarı tonu</string>
+    <string name="sound_vibrate_title">Yalnızca Titreşim</string>
+    <string name="sound_vibrate_sub">Sessiz ortamlarda titreşimle hatırlat</string>
+    <string name="section_prayer_reminders">VAKİTLERE GÖRE HATIRLATICILAR</string>
+    <string name="prayer_label_imsak">İmsak (Sahur)</string>
+    <string name="prayer_label_gunes">Güneş Doğuşu</string>
+    <string name="prayer_label_ogle">Öğle Vakti</string>
+    <string name="prayer_label_ikindi">İkindi Vakti</string>
+    <string name="prayer_label_aksam">Akşam (İftar)</string>
+    <string name="prayer_label_yatsi">Yatsı Vakti</string>
+    <string name="repeat_daily_title">Her Gün Otomatik Yenile</string>
+    <string name="repeat_daily_sub">Alarmlar her gün yeni vakitlere göre kurulur</string>
+    <string name="notif_hint_off">Bildirim kapalı</string>
+    <string name="notif_hint_exact">Tam vaktinde bildirilir</string>
+    <string name="notif_hint_before_fmt">%1$d dk önce bildirilir</string>
+    <string name="notif_hint_exact_time_fmt">Tam vaktinde (%1$s) bildirilir</string>
+    <string name="notif_hint_scheduled_fmt">%1$s saatinde hatırlatılır (%2$d dk önce)</string>
+    <string name="test_notif_title">Ezan ve Namaz Hatırlatıcısı (Test)</string>
+    <string name="test_notif_message">Namaz vakitleri bildirim ayarlarınız başarıyla test edildi.</string>
+    <string name="test_notif_sent">Test bildirimi gönderildi!</string>
+    <string name="notif_channel_name">Namaz Vakti Bildirimleri</string>
+    <string name="notif_channel_desc">Namaz vakti ezan ve hatırlatıcı bildirimleri</string>
+    <string name="alarm_title_before_fmt">%1$s Vaktine %2$d Dakika Kaldı</string>
+    <string name="alarm_title_now_fmt">%1$s Vakti Girdi</string>
+    <string name="alarm_msg_before_fmt">Saat %1$s itibarıyla %2$s vakti başlayacak. Hazırlığınızı yapabilirsiniz.</string>
+    <string name="alarm_msg_now_fmt">%1$s vakti girdi (%2$s). Haydin namaza, haydin kurtuluşa.</string>
+
+    <!-- Language Selector -->
+    <string name="section_app_language">UYGULAMA DİLİ</string>
+    <string name="language_card_title">Dil Seçimi</string>
+    <string name="language_card_subtitle">Uygulamayı istediğiniz dilde kullanın</string>
+    <string name="language_sheet_title">Dil Seçin</string>
+    <string name="language_sheet_subtitle">Seçilen dil tüm ekranda anında uygulanır</string>
+    <string name="language_system">Sistem Dili (Otomatik)</string>
+    <string name="language_changed_toast">Uygulama dili güncellendi: %1$s</string>
+
+    <!-- Tasbih Screen -->
+    <string name="tasbih_title">Zikirmatik</string>
+    <string name="tasbih_subtitle">Sade ve huzurlu dijital tesbih</string>
+    <string name="cd_reset">Sıfırla</string>
+    <string name="tasbih_target_round_fmt">Hedef: %1$d • Tur: %2$d</string>
+    <string name="tasbih_tap">DOKUN</string>
+    <string name="dhikr_subhanallah">Sübhânallah</string>
+    <string name="dhikr_alhamdulillah">Elhamdülillâh</string>
+    <string name="dhikr_allahuakbar">Allâhu Ekber</string>
+    <string name="dhikr_lailahaillallah">Lâ İlâhe İllallâh</string>
+    <string name="dhikr_astaghfirullah">Estağfirullâh</string>
+    <string name="dhikr_salawat">Salavât-ı Şerîfe</string>
+
+    <!-- Errors & Status -->
+    <string name="error_loading_times">Vakitler yüklenirken bir hata oluştu.</string>
+    <string name="location_updated_fmt">%1$s, %2$s konumu için vakitler güncellendi.</string>
+    <string name="error_location_detect">Konum tespit edilemedi.</string>
+
+    <!-- Widget -->
+    <string name="widget_sabah">Sabah Namazı</string>
+    <string name="widget_kusluk">Kuşluk / İşrak Vakti</string>
+    <string name="widget_ogle">Öğle Namazı</string>
+    <string name="widget_ikindi">İkindi Namazı</string>
+    <string name="widget_aksam">Akşam Namazı</string>
+    <string name="widget_yatsi">Yatsı Namazı</string>
+    <string name="widget_time_range_fmt">Vakit: %1$s - %2$s</string>
+    <string name="widget_after_kerahat_fmt">Kerâhat sonrası: %1$s - %2$s</string>
+    <string name="widget_hicri_fallback">1448 Hicri</string>
 </resources>

@@ -14,17 +14,19 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
 import com.example.MainActivity
+import com.example.R
 import com.example.data.local.PreferencesManager
 import com.example.data.model.DailyPrayerSchedule
 import java.util.Calendar
 
 object PrayerNotificationHelper {
     const val CHANNEL_ID = "namaz_vakti_channel"
-    private const val CHANNEL_NAME = "Namaz Vakti Bildirimleri"
     private const val NOTIFICATION_ID_BASE = 1000
 
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val prefs = PreferencesManager(context)
+            val locContext = LocaleHelper.wrapContext(context, prefs.languageCode)
             val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val audioAttributes = AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -33,10 +35,10 @@ object PrayerNotificationHelper {
 
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                CHANNEL_NAME,
+                locContext.getString(R.string.notif_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Namaz vakti ezan ve hatırlatıcı bildirimleri"
+                description = locContext.getString(R.string.notif_channel_desc)
                 enableLights(true)
                 enableVibration(true)
                 setSound(soundUri, audioAttributes)
@@ -140,8 +142,11 @@ object PrayerNotificationHelper {
 
             // Only schedule if it's in the future today
             if (targetCal.timeInMillis > System.currentTimeMillis()) {
+                val locContext = LocaleHelper.wrapContext(context, prefs.languageCode)
+                val localizedPrayerName = locContext.getString(LocaleHelper.prayerNameRes(prayer.type))
                 val intent = Intent(context, PrayerAlarmReceiver::class.java).apply {
-                    putExtra("PRAYER_NAME", prayer.type.displayName)
+                    putExtra("PRAYER_TYPE_NAME", prayer.type.name)
+                    putExtra("PRAYER_NAME", localizedPrayerName)
                     putExtra("PRAYER_TIME", prayer.time)
                     putExtra("OFFSET_MINUTES", offsetMinutes)
                     putExtra("SOUND_MODE", soundMode)

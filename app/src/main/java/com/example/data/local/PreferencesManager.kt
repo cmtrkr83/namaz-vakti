@@ -71,4 +71,9 @@ class PreferencesManager(context: Context) {
     var tasbihDhikrIndex: Int
         get() = prefs.getInt("tasbih_dhikr_index", 0)
         set(value) = prefs.edit().putInt("tasbih_dhikr_index", value).apply()
+
+    // App Language ("system", "tr", "en", "ar", "de", "fr")
+    var languageCode: String
+        get() = prefs.getString("app_language_code", "system") ?: "system"
+        set(value) = prefs.edit().putString("app_language_code", value).apply()
 }

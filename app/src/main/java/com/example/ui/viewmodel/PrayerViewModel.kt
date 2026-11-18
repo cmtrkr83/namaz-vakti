@@ -1,8 +1,10 @@
 package com.example.ui.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.R
 import com.example.data.local.AppDatabase
 import com.example.data.local.DailyWisdom
 import com.example.data.local.DailyWisdomData
@@ -18,6 +20,7 @@ import com.example.data.remote.NetworkClient
 import com.example.data.repository.PrayerRepository
 import com.example.util.CompassSensorHelper
 import com.example.util.CompassState
+import com.example.util.LocaleHelper
 import com.example.util.LocationProvider
 import com.example.util.PrayerNotificationHelper
 import com.example.util.PrayerTimeHelper
@@ -65,7 +68,8 @@ data class PrayerUiState(
     val hasLocationPermission: Boolean = false,
     val locationBannerDismissed: Boolean = false,
     val isUsingAutoLocation: Boolean = true,
-    val prayerWeather: Map<PrayerType, PrayerWeatherInfo> = emptyMap()
+    val prayerWeather: Map<PrayerType, PrayerWeatherInfo> = emptyMap(),
+    val languageCode: String = "system"
 )
 
 class PrayerViewModel(application: Application) : AndroidViewModel(application) {
@@ -100,7 +104,11 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
             tasbihDhikrIndex = preferences.tasbihDhikrIndex,
             hasLocationPermission = initialPermissionGranted,
             locationBannerDismissed = preferences.locationBannerDismissed,
-            isUsingAutoLocation = preferences.autoLocationEnabled
+            isUsingAutoLocation = preferences.autoLocationEnabled,
+            languageCode = preferences.languageCode,
+            dailyWisdom = DailyWisdomData.getTodayWisdom(
+                LocaleHelper.wrapContext(application, preferences.languageCode)
+            )
         )
     )
     val uiState: StateFlow<PrayerUiState> = _uiState.asStateFlow()
@@ -133,12 +141,39 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
         tickerJob = viewModelScope.launch {
             while (isActive) {
                 currentRawEntity?.let { entity ->
-                    val updatedSchedule = PrayerTimeHelper.buildSchedule(entity)
+                    val updatedSchedule = PrayerTimeHelper.buildSchedule(
+                        entity = entity,
+                        context = localizedContext()
+                    )
                     _uiState.update { it.copy(schedule = updatedSchedule) }
                 }
                 delay(1000)
             }
         }
+    }
+
+    private fun localizedContext(): Context {
+        return LocaleHelper.wrapContext(getApplication(), _uiState.value.languageCode)
+    }
+
+    fun setAppLanguage(languageCode: String) {
+        preferences.languageCode = languageCode
+        val locContext = LocaleHelper.wrapContext(getApplication(), languageCode)
+        val refreshedSchedule = currentRawEntity?.let {
+            PrayerTimeHelper.buildSchedule(entity = it, context = locContext)
+        }
+        _uiState.update {
+            it.copy(
+                languageCode = languageCode,
+                schedule = refreshedSchedule ?: it.schedule,
+                dailyWisdom = DailyWisdomData.getTodayWisdom(locContext)
+            )
+        }
+        PrayerNotificationHelper.createNotificationChannel(getApplication())
+        refreshedSchedule?.let {
+            PrayerNotificationHelper.schedulePrayerAlarms(getApplication(), it, preferences)
+        }
+        com.example.widget.PrayerWidgetProvider.updateAllWidgets(getApplication())
     }
 
     /**
@@ -182,7 +217,7 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
             val localToday = repository.getPrayerTimesForDate(districtId, todayKisa)
             if (localToday != null && !forceRefresh) {
                 currentRawEntity = localToday
-                val schedule = PrayerTimeHelper.buildSchedule(localToday)
+                val schedule = PrayerTimeHelper.buildSchedule(localToday, context = localizedContext())
                 _uiState.update {
                     it.copy(
                         schedule = schedule,
@@ -200,7 +235,7 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
 
                 if (todayEntity != null) {
                     currentRawEntity = todayEntity
-                    val schedule = PrayerTimeHelper.buildSchedule(todayEntity)
+                    val schedule = PrayerTimeHelper.buildSchedule(todayEntity, context = localizedContext())
                     _uiState.update {
                         it.copy(
                             schedule = schedule,
@@ -228,7 +263,8 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage = err.localizedMessage ?: "Vakitler yüklenirken bir hata oluştu."
+                            errorMessage = err.localizedMessage
+                                ?: localizedContext().getString(R.string.error_loading_times)
                         )
                     }
                 } else {
@@ -336,19 +372,20 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun triggerTestNotification() {
+        val locContext = localizedContext()
         val soundMode = _uiState.value.notificationSoundMode
-        val title = "Ezan & Namaz Hatırlatıcısı (Test)"
-        val message = "Namaz vakitleri bildirim ayarlarınız başarıyla test edildi."
+        val title = locContext.getString(R.string.test_notif_title)
+        val message = locContext.getString(R.string.test_notif_message)
 
         PrayerNotificationHelper.showNotification(
-            context = getApplication(),
+            context = locContext,
             notificationId = 9999,
             title = title,
             content = message,
             soundMode = soundMode
         )
 
-        _uiState.update { it.copy(testNotificationMessage = "Test bildirimi gönderildi!") }
+        _uiState.update { it.copy(testNotificationMessage = locContext.getString(R.string.test_notif_sent)) }
         viewModelScope.launch {
             delay(3000)
             _uiState.update { it.copy(testNotificationMessage = null) }
@@ -438,16 +475,20 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
                 }
 
                 loadPrayerTimes(forceRefresh = true)
-                onCompleted?.invoke(true, "$resolvedDistrictName, ${city.cityName} konumu için vakitler güncellendi.")
+                onCompleted?.invoke(
+                    true,
+                    localizedContext().getString(R.string.location_updated_fmt, resolvedDistrictName, city.cityName)
+                )
             }.onFailure { err ->
+                val fallbackMsg = localizedContext().getString(R.string.error_location_detect)
                 _uiState.update {
                     it.copy(
                         isDetectingLocation = false,
                         hasLocationPermission = locationProvider.hasLocationPermission(),
-                        errorMessage = err.localizedMessage ?: "Konum tespit edilemedi."
+                        errorMessage = err.localizedMessage ?: fallbackMsg
                     )
                 }
-                onCompleted?.invoke(false, err.localizedMessage ?: "Konum tespit edilemedi.")
+                onCompleted?.invoke(false, err.localizedMessage ?: fallbackMsg)
             }
         }
     }

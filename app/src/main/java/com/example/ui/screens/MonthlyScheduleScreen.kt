@@ -29,11 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.data.local.PrayerTimeEntity
 import com.example.ui.theme.AppMonoFamily
 import com.example.ui.theme.SageCardSurface
@@ -70,7 +72,7 @@ fun MonthlyScheduleScreen(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Aylık İmsakiye",
+                    text = stringResource(R.string.monthly_title),
                     style = MaterialTheme.typography.headlineSmall,
                     color = TextPrimary
                 )
@@ -97,7 +99,7 @@ fun MonthlyScheduleScreen(
                 border = BorderStroke(0.6.dp, SagePrimary.copy(alpha = 0.25f))
             ) {
                 Text(
-                    text = "30 Günlük Diyanet",
+                    text = stringResource(R.string.monthly_badge),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = SagePrimary,
@@ -125,15 +127,22 @@ fun MonthlyScheduleScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Tarih",
+                    text = stringResource(R.string.monthly_col_date),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1.45f),
                     color = TextSecondary
                 )
-                listOf("İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı").forEach { header ->
+                listOf(
+                    R.string.prayer_imsak,
+                    R.string.prayer_gunes,
+                    R.string.prayer_ogle,
+                    R.string.prayer_ikindi,
+                    R.string.prayer_aksam,
+                    R.string.prayer_yatsi
+                ).forEach { headerRes ->
                     Text(
-                        text = header,
+                        text = stringResource(headerRes),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center,
@@ -218,7 +227,7 @@ private fun MonthlyDayRow(
                 )
                 if (isToday) {
                     Text(
-                        text = "Bugün",
+                        text = stringResource(R.string.monthly_today),
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.SemiBold,

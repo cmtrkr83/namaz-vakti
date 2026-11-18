@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -47,11 +48,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.ui.theme.AppMonoFamily
 import com.example.ui.theme.AppSerifFamily
 import com.example.ui.theme.MintSoft
@@ -66,7 +69,7 @@ import com.example.ui.viewmodel.PrayerUiState
 import com.example.ui.viewmodel.PrayerViewModel
 
 data class DhikrPreset(
-    val title: String,
+    @StringRes val titleRes: Int,
     val arabic: String,
     val target: Int
 )
@@ -81,12 +84,12 @@ fun TasbihScreen(
 
     val dhikrPresets = remember {
         listOf(
-            DhikrPreset("Sübhânallah", "سُبْحَانَ اللَّهِ", 33),
-            DhikrPreset("Elhamdülillâh", "الْحَمْدُ لِلَّهِ", 33),
-            DhikrPreset("Allâhu Ekber", "اللَّهُ أَكْبَرُ", 33),
-            DhikrPreset("Lâ İlâhe İllallâh", "لَا إِلَهَ إِلَّا اللَّهُ", 100),
-            DhikrPreset("Estağfirullâh", "أَسْتَغْفِرُ اللَّهَ", 100),
-            DhikrPreset("Salavât-ı Şerîfe", "اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ", 100)
+            DhikrPreset(R.string.dhikr_subhanallah, "سُبْحَانَ اللَّهِ", 33),
+            DhikrPreset(R.string.dhikr_alhamdulillah, "الْحَمْدُ لِلَّهِ", 33),
+            DhikrPreset(R.string.dhikr_allahuakbar, "اللَّهُ أَكْبَرُ", 33),
+            DhikrPreset(R.string.dhikr_lailahaillallah, "لَا إِلَهَ إِلَّا اللَّهُ", 100),
+            DhikrPreset(R.string.dhikr_astaghfirullah, "أَسْتَغْفِرُ اللَّهَ", 100),
+            DhikrPreset(R.string.dhikr_salawat, "اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ", 100)
         )
     }
 
@@ -115,13 +118,13 @@ fun TasbihScreen(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Zikirmatik",
+                    text = stringResource(R.string.tasbih_title),
                     style = MaterialTheme.typography.headlineSmall,
                     color = TextPrimary
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "Sade ve huzurlu dijital tesbih",
+                    text = stringResource(R.string.tasbih_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary
                 )
@@ -136,7 +139,7 @@ fun TasbihScreen(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Refresh,
-                    contentDescription = "Sıfırla",
+                    contentDescription = stringResource(R.string.cd_reset),
                     tint = SagePrimary
                 )
             }
@@ -173,7 +176,7 @@ fun TasbihScreen(
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
                     ) {
                         Text(
-                            text = preset.title,
+                            text = stringResource(preset.titleRes),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                             color = if (isSelected) Color.White else TextPrimary,
@@ -209,13 +212,17 @@ fun TasbihScreen(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = currentDhikr.title,
+                    text = stringResource(currentDhikr.titleRes),
                     style = MaterialTheme.typography.titleMedium,
                     color = TextPrimary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Hedef: ${currentDhikr.target} • Tur: ${(uiState.tasbihCount / currentDhikr.target) + 1}",
+                    text = stringResource(
+                        R.string.tasbih_target_round_fmt,
+                        currentDhikr.target,
+                        (uiState.tasbihCount / currentDhikr.target) + 1
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary
                 )
@@ -284,7 +291,7 @@ fun TasbihScreen(
                     border = BorderStroke(0.6.dp, SagePrimary.copy(alpha = 0.25f))
                 ) {
                     Text(
-                        text = "DOKUN",
+                        text = stringResource(R.string.tasbih_tap),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = 1.sp,

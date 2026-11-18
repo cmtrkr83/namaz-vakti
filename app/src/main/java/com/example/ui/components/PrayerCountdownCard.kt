@@ -36,10 +36,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.data.model.DailyPrayerSchedule
 import com.example.ui.theme.AppMonoFamily
 import com.example.ui.theme.KerahatAmber
@@ -50,6 +52,7 @@ import com.example.ui.theme.SagePrimary
 import com.example.ui.theme.SagePrimaryMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
+import com.example.util.LocaleHelper
 import com.example.util.PrayerTimeHelper
 
 @Composable
@@ -115,8 +118,9 @@ fun PrayerCountdownCard(
                                 .background(SagePrimary)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
+                        val nextPrayerName = stringResource(LocaleHelper.prayerNameRes(schedule.nextPrayer.type))
                         Text(
-                            text = "${schedule.nextPrayer.type.displayName.uppercase()} VAKTİNE KALAN",
+                            text = stringResource(R.string.countdown_remaining_fmt, nextPrayerName.uppercase()),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.SemiBold,
                             letterSpacing = 1.1.sp,
@@ -180,13 +184,15 @@ fun PrayerCountdownCard(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        val currentName = stringResource(LocaleHelper.prayerNameRes(schedule.currentPrayer.type))
+                        val nextName = stringResource(LocaleHelper.prayerNameRes(schedule.nextPrayer.type))
                         Text(
-                            text = "${schedule.currentPrayer.type.displayName} • ${schedule.currentPrayer.time}",
+                            text = "$currentName • ${schedule.currentPrayer.time}",
                             style = MaterialTheme.typography.labelSmall,
                             color = TextSecondary
                         )
                         Text(
-                            text = "${schedule.nextPrayer.type.displayName} • ${schedule.nextPrayer.time}",
+                            text = "$nextName • ${schedule.nextPrayer.time}",
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = SagePrimary
@@ -214,13 +220,13 @@ fun PrayerCountdownCard(
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.WarningAmber,
-                                    contentDescription = "Kerahat Uyarısı",
+                                    contentDescription = stringResource(R.string.cd_kerahat_warning),
                                     tint = KerahatAmber,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = schedule.kerahatReason ?: "Kerahat Vakti",
+                                    text = schedule.kerahatReason ?: stringResource(R.string.kerahat_default),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = KerahatAmber,
                                     fontWeight = FontWeight.Medium
@@ -247,7 +253,7 @@ fun PrayerCountdownCard(
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
-                            text = "Kıble Saati: ${schedule.kibleSaati}",
+                            text = stringResource(R.string.qibla_time_fmt, schedule.kibleSaati),
                             style = MaterialTheme.typography.bodySmall,
                             color = TextSecondary
                         )
@@ -262,7 +268,7 @@ fun PrayerCountdownCard(
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
-                            text = "Diyanet Takvimi",
+                            text = stringResource(R.string.calendar_diyanet),
                             style = MaterialTheme.typography.bodySmall,
                             color = TextSecondary
                         )

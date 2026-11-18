@@ -60,10 +60,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.ui.theme.AppMonoFamily
 import com.example.ui.theme.SageCardSurface
 import com.example.ui.theme.SageCardVariant
@@ -139,13 +141,17 @@ fun QiblaCompassScreen(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Kıble Pusulası",
+                    text = stringResource(R.string.qibla_title),
                     style = MaterialTheme.typography.headlineSmall,
                     color = TextPrimary
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = if (compassState.isGpsActive) "Canlı GPS Konumu" else "${uiState.cityName} (Şehir Koordinatları)",
+                    text = if (compassState.isGpsActive) {
+                        stringResource(R.string.qibla_gps_active)
+                    } else {
+                        stringResource(R.string.qibla_city_coords_fmt, uiState.cityName)
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary
                 )
@@ -176,7 +182,7 @@ fun QiblaCompassScreen(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "GPS Konumu",
+                    text = stringResource(R.string.qibla_gps_button),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = SagePrimary
@@ -209,11 +215,9 @@ fun QiblaCompassScreen(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = if (compassState.isFacingQibla) {
-                        "Kıbleye Yöneldiniz • Kâbe İstikameti"
-                    } else {
-                        "Telefonu düz tutup iğneyi hizalayın"
-                    },
+                    text = stringResource(
+                        if (compassState.isFacingQibla) R.string.qibla_aligned else R.string.qibla_align_instruction
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = if (compassState.isFacingQibla) SagePrimary else TextPrimary
@@ -331,7 +335,7 @@ fun QiblaCompassScreen(
                     )
                 )
                 Text(
-                    text = "KUZEY",
+                    text = stringResource(R.string.compass_north),
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = 9.sp,
                     letterSpacing = 1.sp,
@@ -358,7 +362,7 @@ fun QiblaCompassScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Kıble Açısı",
+                        text = stringResource(R.string.qibla_angle_label),
                         style = MaterialTheme.typography.labelMedium,
                         color = TextSecondary
                     )
@@ -384,13 +388,13 @@ fun QiblaCompassScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Kâbe'ye Mesafe",
+                        text = stringResource(R.string.qibla_distance_label),
                         style = MaterialTheme.typography.labelMedium,
                         color = TextSecondary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "${compassState.distanceKm} km",
+                        text = stringResource(R.string.qibla_distance_km_fmt, compassState.distanceKm),
                         fontFamily = AppMonoFamily,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -421,7 +425,7 @@ fun QiblaCompassScreen(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Doğru ölçüm için cihazı metal ve manyetik kılıflardan uzak tutun; havada sekiz (8) çizerek kalibre edebilirsiniz.",
+                    text = stringResource(R.string.qibla_calibration_tip),
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary,
                     lineHeight = 18.sp

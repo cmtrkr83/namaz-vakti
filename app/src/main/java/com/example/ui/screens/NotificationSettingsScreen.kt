@@ -3,8 +3,10 @@ package com.example.ui.screens
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -37,6 +39,8 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.outlined.Bedtime
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.NightlightRound
@@ -49,6 +53,7 @@ import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material.icons.outlined.WbTwilight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -56,6 +61,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,11 +74,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.example.R
 import com.example.data.model.PrayerType
+import com.example.ui.components.LanguageSelectionSheet
 import com.example.ui.theme.AppMonoFamily
 import com.example.ui.theme.SageCardSurface
 import com.example.ui.theme.SageCardVariant
@@ -86,11 +95,14 @@ import com.example.ui.theme.WarmGoldAccent
 import com.example.ui.theme.WarmGoldMuted
 import com.example.ui.viewmodel.PrayerUiState
 import com.example.ui.viewmodel.PrayerViewModel
+import com.example.util.AppLanguage
+import com.example.util.LocaleHelper
+import java.util.Locale
 
 private data class SoundOptionUi(
     val key: String,
-    val title: String,
-    val subtitle: String,
+    @StringRes val titleRes: Int,
+    @StringRes val subtitleRes: Int,
     val activeIcon: ImageVector,
     val inactiveIcon: ImageVector
 )
@@ -98,11 +110,11 @@ private data class SoundOptionUi(
 private data class PrayerToggleMeta(
     val key: String,
     val type: PrayerType,
-    val label: String,
+    @StringRes val labelRes: Int,
     val icon: ImageVector
 )
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationSettingsScreen(
     viewModel: PrayerViewModel,
@@ -110,6 +122,8 @@ fun NotificationSettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    var showLanguageSheet by remember { mutableStateOf(false) }
+    val languageSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var hasNotificationPermission by remember {
         mutableStateOf(
@@ -127,37 +141,28 @@ fun NotificationSettingsScreen(
         hasNotificationPermission = isGranted
     }
 
-    val offsetOptions = remember {
-        listOf(
-            0 to "Tam vaktinde",
-            5 to "5 dk önce",
-            10 to "10 dk önce",
-            15 to "15 dk önce",
-            30 to "30 dk önce",
-            45 to "45 dk önce"
-        )
-    }
+    val offsetValues = remember { listOf(0, 5, 10, 15, 30, 45) }
 
     val soundOptions = remember {
         listOf(
             SoundOptionUi(
                 key = "ezan",
-                title = "Ezan / Melodik Uyarı",
-                subtitle = "Vakit girdiğinde belirgin sesli bildirim",
+                titleRes = R.string.sound_ezan_title,
+                subtitleRes = R.string.sound_ezan_sub,
                 activeIcon = Icons.Filled.MusicNote,
                 inactiveIcon = Icons.Outlined.MusicNote
             ),
             SoundOptionUi(
                 key = "bip",
-                title = "Kısa Bildirim Sesi",
-                subtitle = "Sakin ve kısa sistem uyarı tonu",
+                titleRes = R.string.sound_bip_title,
+                subtitleRes = R.string.sound_bip_sub,
                 activeIcon = Icons.Filled.Notifications,
                 inactiveIcon = Icons.Outlined.Notifications
             ),
             SoundOptionUi(
                 key = "vibrate",
-                title = "Yalnızca Titreşim",
-                subtitle = "Sessiz ortamlarda titreşimle hatırlat",
+                titleRes = R.string.sound_vibrate_title,
+                subtitleRes = R.string.sound_vibrate_sub,
                 activeIcon = Icons.Filled.Vibration,
                 inactiveIcon = Icons.Outlined.Vibration
             )
@@ -166,17 +171,21 @@ fun NotificationSettingsScreen(
 
     val prayersList = remember {
         listOf(
-            PrayerToggleMeta("imsak", PrayerType.IMSAK, "İmsak (Sahur)", Icons.Outlined.WbTwilight),
-            PrayerToggleMeta("gunes", PrayerType.GUNES, "Güneş Doğuşu", Icons.Outlined.WbSunny),
-            PrayerToggleMeta("ogle", PrayerType.OGLE, "Öğle Vakti", Icons.Outlined.LightMode),
-            PrayerToggleMeta("ikindi", PrayerType.IKINDI, "İkindi Vakti", Icons.Outlined.WbCloudy),
-            PrayerToggleMeta("aksam", PrayerType.AKSAM, "Akşam (İftar)", Icons.Outlined.Bedtime),
-            PrayerToggleMeta("yatsi", PrayerType.YATSI, "Yatsı Vakti", Icons.Outlined.NightlightRound)
+            PrayerToggleMeta("imsak", PrayerType.IMSAK, R.string.prayer_label_imsak, Icons.Outlined.WbTwilight),
+            PrayerToggleMeta("gunes", PrayerType.GUNES, R.string.prayer_label_gunes, Icons.Outlined.WbSunny),
+            PrayerToggleMeta("ogle", PrayerType.OGLE, R.string.prayer_label_ogle, Icons.Outlined.LightMode),
+            PrayerToggleMeta("ikindi", PrayerType.IKINDI, R.string.prayer_label_ikindi, Icons.Outlined.WbCloudy),
+            PrayerToggleMeta("aksam", PrayerType.AKSAM, R.string.prayer_label_aksam, Icons.Outlined.Bedtime),
+            PrayerToggleMeta("yatsi", PrayerType.YATSI, R.string.prayer_label_yatsi, Icons.Outlined.NightlightRound)
         )
     }
 
     val prayerTimesMap = remember(uiState.schedule) {
         uiState.schedule?.prayers?.associate { it.type to it.time } ?: emptyMap()
+    }
+
+    val selectedLanguage = remember(uiState.languageCode) {
+        AppLanguage.fromCode(uiState.languageCode)
     }
 
     Column(
@@ -194,13 +203,13 @@ fun NotificationSettingsScreen(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Bildirim Ayarları",
+                    text = stringResource(R.string.notif_title),
                     style = MaterialTheme.typography.headlineSmall,
                     color = TextPrimary
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "Ezan ve vakit hatırlatıcılarını düzenleyin",
+                    text = stringResource(R.string.notif_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary
                 )
@@ -230,13 +239,13 @@ fun NotificationSettingsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.NotificationsActive,
-                        contentDescription = "Bildirimi test et",
+                        contentDescription = stringResource(R.string.cd_test_notification),
                         tint = SagePrimary,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Test Et",
+                        text = stringResource(R.string.notif_test_button),
                         style = MaterialTheme.typography.labelLarge,
                         color = SagePrimary
                     )
@@ -296,13 +305,13 @@ fun NotificationSettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Bildirim İzni Gerekli",
+                            text = stringResource(R.string.notif_permission_title),
                             style = MaterialTheme.typography.titleSmall,
                             color = WarmGoldAccent
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "Vakit hatırlatıcıları için sistem iznini onaylayın.",
+                            text = stringResource(R.string.notif_permission_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = TextSecondary
                         )
@@ -322,7 +331,7 @@ fun NotificationSettingsScreen(
                             .testTag("grant_notification_permission_button")
                     ) {
                         Text(
-                            text = "İzin Ver",
+                            text = stringResource(R.string.notif_permission_grant),
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
@@ -332,8 +341,96 @@ fun NotificationSettingsScreen(
 
         Spacer(modifier = Modifier.height(22.dp))
 
-        // Section 1: Hatırlatma Zamanı
-        SectionLabel(text = "HATIRLATMA ZAMANI")
+        // Language Selection Section
+        SectionLabel(text = stringResource(R.string.section_app_language))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = SageCardSurface,
+            border = BorderStroke(0.8.dp, SageHairlineBorder),
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 64.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .clickable { showLanguageSheet = true }
+                .testTag("settings_language_card")
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(SagePrimaryMuted),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Language,
+                            contentDescription = null,
+                            tint = SagePrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column {
+                        Text(
+                            text = stringResource(R.string.language_card_title),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TextPrimary
+                        )
+                        Text(
+                            text = stringResource(R.string.language_card_subtitle),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextSecondary
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = SagePrimaryMuted
+                    ) {
+                        Text(
+                            text = if (selectedLanguage == AppLanguage.SYSTEM) {
+                                stringResource(R.string.language_system)
+                            } else {
+                                selectedLanguage.nativeName
+                            },
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = SagePrimary,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        contentDescription = stringResource(R.string.cd_change_language),
+                        tint = TextSecondary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Section 1: Reminder Time
+        SectionLabel(text = stringResource(R.string.section_reminder_time))
         Spacer(modifier = Modifier.height(8.dp))
 
         Surface(
@@ -344,7 +441,7 @@ fun NotificationSettingsScreen(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Vakitten ne kadar önce haber verilsin?",
+                    text = stringResource(R.string.notif_offset_question),
                     style = MaterialTheme.typography.titleSmall,
                     color = TextPrimary
                 )
@@ -355,8 +452,13 @@ fun NotificationSettingsScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    offsetOptions.forEach { (offset, label) ->
+                    offsetValues.forEach { offset ->
                         val isSelected = uiState.notificationOffsetMinutes == offset
+                        val label = if (offset == 0) {
+                            stringResource(R.string.offset_exact)
+                        } else {
+                            stringResource(R.string.offset_minutes_fmt, offset)
+                        }
                         Surface(
                             shape = RoundedCornerShape(14.dp),
                             color = if (isSelected) SagePrimary else SageCardVariant,
@@ -390,8 +492,8 @@ fun NotificationSettingsScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Section 2: Ses ve Uyarı Modu
-        SectionLabel(text = "SES VE UYARI TÜRÜ")
+        // Section 2: Sound Mode
+        SectionLabel(text = stringResource(R.string.section_sound_mode))
         Spacer(modifier = Modifier.height(8.dp))
 
         Surface(
@@ -436,14 +538,14 @@ fun NotificationSettingsScreen(
                             Spacer(modifier = Modifier.width(14.dp))
                             Column {
                                 Text(
-                                    text = option.title,
+                                    text = stringResource(option.titleRes),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                                     color = if (isSelected) SagePrimary else TextPrimary
                                 )
                                 Spacer(modifier = Modifier.height(1.dp))
                                 Text(
-                                    text = option.subtitle,
+                                    text = stringResource(option.subtitleRes),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = TextSecondary
                                 )
@@ -467,7 +569,7 @@ fun NotificationSettingsScreen(
                             if (isSelected) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
-                                    contentDescription = "Seçili",
+                                    contentDescription = stringResource(R.string.cd_selected),
                                     tint = Color.White,
                                     modifier = Modifier.size(14.dp)
                                 )
@@ -487,8 +589,8 @@ fun NotificationSettingsScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Section 3: Vakitlere Göre Hatırlatıcılar + Daily Repeat
-        SectionLabel(text = "VAKİTLERE GÖRE HATIRLATICILAR")
+        // Section 3: Prayer Reminders + Daily Repeat
+        SectionLabel(text = stringResource(R.string.section_prayer_reminders))
         Spacer(modifier = Modifier.height(8.dp))
 
         Surface(
@@ -541,7 +643,7 @@ fun NotificationSettingsScreen(
                             Column {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
-                                        text = prayerMeta.label,
+                                        text = stringResource(prayerMeta.labelRes),
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = if (isChecked) FontWeight.SemiBold else FontWeight.Normal,
                                         color = if (isChecked) TextPrimary else TextSecondary
@@ -615,13 +717,13 @@ fun NotificationSettingsScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "Her Gün Otomatik Yenile",
+                                text = stringResource(R.string.repeat_daily_title),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium,
                                 color = TextPrimary
                             )
                             Text(
-                                text = "Alarmlar her gün yeni vakitlere göre kurulur",
+                                text = stringResource(R.string.repeat_daily_sub),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = TextSecondary
                             )
@@ -646,6 +748,24 @@ fun NotificationSettingsScreen(
             }
         }
     }
+
+    if (showLanguageSheet) {
+        LanguageSelectionSheet(
+            sheetState = languageSheetState,
+            currentLanguageCode = uiState.languageCode,
+            onDismiss = { showLanguageSheet = false },
+            onLanguageSelected = { lang ->
+                viewModel.setAppLanguage(lang.code)
+                val updatedContext = LocaleHelper.wrapContext(context, lang.code)
+                val langName = LocaleHelper.displayTitle(updatedContext, lang)
+                Toast.makeText(
+                    updatedContext,
+                    updatedContext.getString(R.string.language_changed_toast, langName),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
+    }
 }
 
 @Composable
@@ -660,25 +780,32 @@ private fun SectionLabel(text: String) {
     )
 }
 
+@Composable
 private fun buildTriggerHint(
     rawTime: String?,
     offsetMinutes: Int,
     isEnabled: Boolean
 ): String {
-    if (!isEnabled) return "Bildirim kapalı"
+    if (!isEnabled) return stringResource(R.string.notif_hint_off)
     if (rawTime == null) {
-        return if (offsetMinutes == 0) "Tam vaktinde bildirilir" else "$offsetMinutes dk önce bildirilir"
+        return if (offsetMinutes == 0) {
+            stringResource(R.string.notif_hint_exact)
+        } else {
+            stringResource(R.string.notif_hint_before_fmt, offsetMinutes)
+        }
     }
-    if (offsetMinutes == 0) return "Tam vaktinde ($rawTime) bildirilir"
+    if (offsetMinutes == 0) return stringResource(R.string.notif_hint_exact_time_fmt, rawTime)
 
     val parts = rawTime.split(":")
     val hour = parts.getOrNull(0)?.toIntOrNull()
     val minute = parts.getOrNull(1)?.toIntOrNull()
-    if (hour == null || minute == null) return "$offsetMinutes dk önce bildirilir"
+    if (hour == null || minute == null) {
+        return stringResource(R.string.notif_hint_before_fmt, offsetMinutes)
+    }
 
     val totalMinutes = ((hour * 60 + minute - offsetMinutes) % 1440 + 1440) % 1440
     val targetHour = totalMinutes / 60
     val targetMinute = totalMinutes % 60
-    val formatted = String.format("%02d:%02d", targetHour, targetMinute)
-    return "$formatted'de hatırlatılır ($offsetMinutes dk önce)"
+    val formatted = String.format(Locale.US, "%02d:%02d", targetHour, targetMinute)
+    return stringResource(R.string.notif_hint_scheduled_fmt, formatted, offsetMinutes)
 }

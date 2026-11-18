@@ -3,29 +3,40 @@ package com.example.util
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.example.R
+import com.example.data.local.PreferencesManager
+import com.example.data.model.PrayerType
 
 class PrayerAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val prayerName = intent.getStringExtra("PRAYER_NAME") ?: "Namaz"
+        val prefs = PreferencesManager(context)
+        val locContext = LocaleHelper.wrapContext(context, prefs.languageCode)
+
+        val prayerTypeName = intent.getStringExtra("PRAYER_TYPE_NAME")
+        val resolvedType = prayerTypeName?.let { runCatching { PrayerType.valueOf(it) }.getOrNull() }
+        val prayerName = resolvedType?.let { locContext.getString(LocaleHelper.prayerNameRes(it)) }
+            ?: intent.getStringExtra("PRAYER_NAME")
+            ?: locContext.getString(R.string.prayer_default_name)
+
         val prayerTime = intent.getStringExtra("PRAYER_TIME") ?: ""
         val offsetMinutes = intent.getIntExtra("OFFSET_MINUTES", 0)
         val soundMode = intent.getStringExtra("SOUND_MODE") ?: "ezan"
         val notificationId = intent.getIntExtra("NOTIFICATION_ID", 1001)
 
         val title = if (offsetMinutes > 0) {
-            "$prayerName Vaktine $offsetMinutes Dakika Kaldı"
+            locContext.getString(R.string.alarm_title_before_fmt, prayerName, offsetMinutes)
         } else {
-            "$prayerName Vakti Girdi"
+            locContext.getString(R.string.alarm_title_now_fmt, prayerName)
         }
 
         val message = if (offsetMinutes > 0) {
-            "Saat $prayerTime itibarıyla $prayerName vakti başlayacak. Hazırlığınızı yapabilirsiniz."
+            locContext.getString(R.string.alarm_msg_before_fmt, prayerTime, prayerName)
         } else {
-            "$prayerName vakti girdi ($prayerTime). Haydin namaza, haydin kurtuluşa."
+            locContext.getString(R.string.alarm_msg_now_fmt, prayerName, prayerTime)
         }
 
         PrayerNotificationHelper.showNotification(
-            context = context,
+            context = locContext,
             notificationId = notificationId,
             title = title,
             content = message,

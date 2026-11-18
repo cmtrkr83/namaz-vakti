@@ -44,11 +44,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.data.model.PrayerItem
 import com.example.data.model.PrayerType
 import com.example.data.model.PrayerWeatherInfo
@@ -64,6 +66,7 @@ import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.WarmGoldAccent
 import com.example.ui.theme.WarmGoldMuted
+import com.example.util.LocaleHelper
 
 @Composable
 fun PrayerTimeRow(
@@ -94,36 +97,30 @@ fun PrayerTimeRow(
         }
     }
 
-    val iconDescription = if (weatherInfo != null) {
-        "${item.type.displayName} - ${weatherInfo.condition.labelTr} ${weatherInfo.temperatureCelsius}°C"
+    val prayerName = stringResource(LocaleHelper.prayerNameRes(item.type))
+    val prayerSubtitle = stringResource(LocaleHelper.prayerSubtitleRes(item.type))
+    val weatherConditionLabel = weatherInfo?.let {
+        stringResource(LocaleHelper.weatherConditionRes(it.condition))
+    }
+
+    val iconDescription = if (weatherInfo != null && weatherConditionLabel != null) {
+        "$prayerName - $weatherConditionLabel ${weatherInfo.temperatureCelsius}°C"
     } else {
-        item.type.displayName
+        prayerName
     }
 
     val cardBgColor by animateColorAsState(
-        targetValue = when {
-            item.isCurrent -> Color(0xFFE4EFE8)
-            item.isNext -> Color(0xFFF0EDE2)
-            else -> SageCardSurface
-        },
+        targetValue = if (item.isCurrent) Color(0xFFF4ECD4) else SageCardSurface,
         label = "bgColor"
     )
 
     val borderColor by animateColorAsState(
-        targetValue = when {
-            item.isCurrent -> SagePrimary.copy(alpha = 0.55f)
-            item.isNext -> WarmGoldAccent.copy(alpha = 0.35f)
-            else -> Color(0xB3FFFFFF)
-        },
+        targetValue = if (item.isCurrent) WarmGoldAccent.copy(alpha = 0.55f) else Color(0xB3FFFFFF),
         label = "borderColor"
     )
 
     val elevation by animateDpAsState(
-        targetValue = when {
-            item.isCurrent -> 10.dp
-            item.isNext -> 7.dp
-            else -> 5.dp
-        },
+        targetValue = if (item.isCurrent) 10.dp else 5.dp,
         label = "cardElevation"
     )
 
@@ -137,7 +134,7 @@ fun PrayerTimeRow(
                 shape = cardShape,
                 clip = false,
                 ambientColor = Color(0x1E172A22),
-                spotColor = if (item.isCurrent) Color(0x36245C49) else Color(0x26172A22)
+                spotColor = if (item.isCurrent) Color(0x36826026) else Color(0x26172A22)
             )
             .testTag("prayer_row_${item.type.name.lowercase()}"),
         shape = cardShape,
@@ -164,22 +161,14 @@ fun PrayerTimeRow(
                         .size(42.dp)
                         .clip(CircleShape)
                         .background(
-                            when {
-                                item.isCurrent -> SagePrimaryMuted
-                                item.isNext -> WarmGoldMuted
-                                else -> SageCardVariant
-                            }
+                            if (item.isCurrent) WarmGoldMuted else SageCardVariant
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = displayIcon,
                         contentDescription = iconDescription,
-                        tint = when {
-                            item.isCurrent -> SagePrimary
-                            item.isNext -> WarmGoldAccent
-                            else -> TextSecondary
-                        },
+                        tint = if (item.isCurrent) WarmGoldAccent else TextSecondary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -189,39 +178,24 @@ fun PrayerTimeRow(
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = item.type.displayName,
+                            text = prayerName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = if (item.isCurrent) FontWeight.SemiBold else FontWeight.Medium,
-                            color = if (item.isCurrent) SagePrimary else TextPrimary
+                            color = if (item.isCurrent) WarmGoldAccent else TextPrimary
                         )
 
                         if (item.isCurrent) {
                             Spacer(modifier = Modifier.width(8.dp))
                             Surface(
                                 shape = RoundedCornerShape(8.dp),
-                                color = SagePrimary
+                                color = WarmGoldAccent
                             ) {
                                 Text(
-                                    text = "ŞU AN",
+                                    text = stringResource(R.string.badge_now),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
-                                )
-                            }
-                        } else if (item.isNext) {
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = WarmGoldMuted
-                            ) {
-                                Text(
-                                    text = "SIRADAKİ",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = WarmGoldAccent,
                                     modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
                                 )
                             }
@@ -231,11 +205,7 @@ fun PrayerTimeRow(
                     Spacer(modifier = Modifier.height(2.dp))
 
                     Text(
-                        text = if (weatherInfo != null) {
-                            "${weatherInfo.temperatureCelsius}°C • ${weatherInfo.condition.labelTr} • ${item.type.subtitle}"
-                        } else {
-                            item.type.subtitle
-                        },
+                        text = prayerSubtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = TextSecondary,
                         maxLines = 1,
@@ -252,8 +222,14 @@ fun PrayerTimeRow(
                     } else {
                         Icons.Outlined.NotificationsOff
                     },
-                    contentDescription = if (isNotificationActive) "Bildirim açık" else "Bildirim kapalı",
-                    tint = if (isNotificationActive) SagePrimary.copy(alpha = 0.72f) else TextMuted,
+                    contentDescription = stringResource(
+                        if (isNotificationActive) R.string.cd_notification_on else R.string.cd_notification_off
+                    ),
+                    tint = if (isNotificationActive) {
+                        if (item.isCurrent) WarmGoldAccent.copy(alpha = 0.8f) else SagePrimary.copy(alpha = 0.72f)
+                    } else {
+                        TextMuted
+                    },
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -264,7 +240,7 @@ fun PrayerTimeRow(
                         fontSize = 20.sp,
                         fontWeight = if (item.isCurrent) FontWeight.Bold else FontWeight.SemiBold,
                         fontFeatureSettings = "tnum",
-                        color = if (item.isCurrent) SagePrimary else TextPrimary
+                        color = if (item.isCurrent) WarmGoldAccent else TextPrimary
                     )
                 )
             }
