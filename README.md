@@ -18,7 +18,7 @@ There are no ads, no accounts, no analytics and no paid tiers.
 ## 📸 Screenshot
 
 <p align="center">
-  <img src="docs/screenshots/prayer-times.png" width="330" alt="Prayer times screen with countdown, daily times and bottom navigation">
+  <img src="docs/screenshots/Ekran Resmi 2026-11-18 12.46.15.png" width="330" alt="Prayer times screen with countdown, daily times and bottom navigation">
   <br>
   <sub>Representative preview built from the app's real Compose theme, screen structure and Turkish labels — not a device capture.</sub>
 </p>
