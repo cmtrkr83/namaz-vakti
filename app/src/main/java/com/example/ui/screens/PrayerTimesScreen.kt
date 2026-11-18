@@ -1,10 +1,23 @@
 package com.example.ui.screens
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,16 +28,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.MyLocation
+import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -32,26 +50,44 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.ui.components.CitySelectionSheet
 import com.example.ui.components.DailyWisdomCard
 import com.example.ui.components.PrayerCountdownCard
 import com.example.ui.components.PrayerTimeRow
-import com.example.ui.theme.GoldPrimary
+import com.example.ui.theme.SageCardSurface
+import com.example.ui.theme.SageHairlineBorder
+import com.example.ui.theme.SagePrimary
+import com.example.ui.theme.SagePrimaryMuted
+import com.example.ui.theme.TextMuted
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
+import com.example.ui.theme.WarmGoldAccent
 import com.example.ui.viewmodel.PrayerUiState
 import com.example.ui.viewmodel.PrayerViewModel
 
@@ -63,21 +99,88 @@ fun PrayerTimesScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val activity = remember(context) { context.findActivity() }
+
     var showCitySheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val locationPermissions = remember {
+        arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        viewModel.refreshLocationPermissionState(autoFetchIfNewlyGranted = false)
         if (granted) {
             viewModel.detectLocationAndFetchPrayerTimes { success, msg ->
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                 if (success) showCitySheet = false
             }
         } else {
-            Toast.makeText(context, "Konum izni verilmedi.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                "Konum izni verilmedi. İsterseniz şehrinizi elle seçebilirsiniz.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    // Re-check location permission when returning from Android System Settings
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshLocationPermissionState()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    // Prompt runtime location permission automatically once on initial launch if not yet requested
+    LaunchedEffect(Unit) {
+        if (!viewModel.locationProvider.hasLocationPermission() &&
+            !viewModel.preferences.hasRequestedLocationPermission
+        ) {
+            viewModel.preferences.hasRequestedLocationPermission = true
+            locationPermissionLauncher.launch(locationPermissions)
+        }
+    }
+
+    val isPermanentlyDenied = !uiState.hasLocationPermission &&
+        viewModel.preferences.hasRequestedLocationPermission &&
+        activity != null &&
+        !ActivityCompat.shouldShowRequestPermissionRationale(
+            activity,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) &&
+        !ActivityCompat.shouldShowRequestPermissionRationale(
+            activity,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+    fun triggerLocationDetection() {
+        if (viewModel.locationProvider.hasLocationPermission()) {
+            viewModel.detectLocationAndFetchPrayerTimes { success, msg ->
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                if (success) showCitySheet = false
+            }
+        } else if (isPermanentlyDenied) {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+            }
+            context.startActivity(intent)
+        } else {
+            viewModel.preferences.hasRequestedLocationPermission = true
+            locationPermissionLauncher.launch(locationPermissions)
         }
     }
 
@@ -92,70 +195,191 @@ fun PrayerTimesScreen(
         modifier = modifier.fillMaxSize()
     ) {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp),
-            contentPadding = PaddingValues(top = 12.dp, bottom = 120.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 104.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
-                Spacer(modifier = Modifier.height(8.dp))
                 // Top Navigation & Location Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Location Pill (Tap to change)
                     Surface(
                         shape = RoundedCornerShape(20.dp),
-                        color = MaterialTheme.colorScheme.surface,
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            GoldPrimary.copy(alpha = 0.5f)
-                        ),
+                        color = SageCardSurface,
+                        border = BorderStroke(0.8.dp, SageHairlineBorder),
                         modifier = Modifier
+                            .weight(1f, fill = false)
+                            .heightIn(min = 48.dp)
+                            .clip(RoundedCornerShape(20.dp))
                             .clickable { showCitySheet = true }
                             .testTag("location_picker_button")
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.LocationOn,
+                                imageVector = Icons.Outlined.LocationOn,
                                 contentDescription = null,
-                                tint = GoldPrimary,
+                                tint = SagePrimary,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = "${uiState.cityName}, ${uiState.districtName}",
                                 style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                fontWeight = FontWeight.SemiBold,
+                                color = TextPrimary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = "Değiştir",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                imageVector = Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = "Konum değiştir",
+                                tint = TextSecondary,
                                 modifier = Modifier.size(18.dp)
                             )
                         }
                     }
 
-                    // Refresh Button
-                    IconButton(
-                        onClick = { viewModel.loadPrayerTimes(forceRefresh = true) },
-                        modifier = Modifier.testTag("refresh_prayer_times_button")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = { triggerLocationDetection() },
+                            enabled = !uiState.isDetectingLocation,
+                            modifier = Modifier.testTag("quick_gps_location_button")
+                        ) {
+                            if (uiState.isDetectingLocation) {
+                                CircularProgressIndicator(
+                                    color = SagePrimary,
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Outlined.MyLocation,
+                                    contentDescription = "Mevcut konumumu kullan",
+                                    tint = SagePrimary
+                                )
+                            }
+                        }
+
+                        IconButton(
+                            onClick = { viewModel.loadPrayerTimes(forceRefresh = true) },
+                            modifier = Modifier.testTag("refresh_prayer_times_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Refresh,
+                                contentDescription = "Yenile",
+                                tint = SagePrimary,
+                                modifier = Modifier.rotate(rotationAngle)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Location Permission Rationale / Prompt Card (shown if permission is not granted)
+            item {
+                AnimatedVisibility(
+                    visible = !uiState.hasLocationPermission && !uiState.locationBannerDismissed,
+                    enter = fadeIn() + expandVertically(),
+                    exit = fadeOut() + shrinkVertically()
+                ) {
+                    val bannerShape = RoundedCornerShape(20.dp)
+                    Surface(
+                        shape = bannerShape,
+                        color = SageCardSurface,
+                        border = BorderStroke(0.9.dp, Color(0xCCFFFFFF)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(
+                                elevation = 5.dp,
+                                shape = bannerShape,
+                                clip = false,
+                                ambientColor = Color(0x1C172A22),
+                                spotColor = Color(0x26172A22)
+                            )
+                            .testTag("location_permission_banner")
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Yenile",
-                            tint = GoldPrimary,
-                            modifier = Modifier.rotate(rotationAngle)
-                        )
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .clip(CircleShape)
+                                        .background(SagePrimaryMuted),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.MyLocation,
+                                        contentDescription = null,
+                                        tint = SagePrimary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Bulunduğunuz Şehre Özel Vakitler",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = TextPrimary
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = if (isPermanentlyDenied) {
+                                            "Konum izni ayarlardan kapalı. Otomatik şehir tespiti için uygulama ayarlarından izin verebilirsiniz."
+                                        } else {
+                                            "Mevcut konumunuzu alarak bulunduğunuz il ve ilçenin Diyanet namaz vakitlerini otomatik getirelim."
+                                        },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = TextSecondary
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TextButton(
+                                    onClick = { viewModel.dismissLocationBanner() },
+                                    modifier = Modifier
+                                        .heightIn(min = 48.dp)
+                                        .testTag("dismiss_location_banner_button")
+                                ) {
+                                    Text(
+                                        text = "Şimdilik Geç",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = TextSecondary
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Button(
+                                    onClick = { triggerLocationDetection() },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = SagePrimary,
+                                        contentColor = Color.White
+                                    ),
+                                    shape = RoundedCornerShape(14.dp),
+                                    modifier = Modifier
+                                        .heightIn(min = 48.dp)
+                                        .testTag("request_location_permission_banner_button")
+                                ) {
+                                    Text(
+                                        text = if (isPermanentlyDenied) "Ayarları Aç" else "Konumu Kullan",
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -165,7 +389,8 @@ fun PrayerTimesScreen(
                 uiState.schedule?.let { schedule ->
                     Surface(
                         shape = RoundedCornerShape(14.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        color = SageCardSurface,
+                        border = BorderStroke(0.7.dp, SageHairlineBorder),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
@@ -175,27 +400,33 @@ fun PrayerTimesScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
                                 Icon(
-                                    imageVector = Icons.Default.CalendarMonth,
+                                    imageVector = Icons.Outlined.CalendarMonth,
                                     contentDescription = null,
-                                    tint = GoldPrimary,
-                                    modifier = Modifier.size(16.dp)
+                                    tint = SagePrimary,
+                                    modifier = Modifier.size(15.dp)
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(7.dp))
                                 Text(
                                     text = schedule.dateUzun,
                                     style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = TextPrimary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
+
+                            Spacer(modifier = Modifier.width(8.dp))
 
                             Text(
                                 text = schedule.hicriDate,
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.SemiBold,
-                                color = GoldPrimary
+                                color = WarmGoldAccent
                             )
                         }
                     }
@@ -213,30 +444,32 @@ fun PrayerTimesScreen(
                             .height(180.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = GoldPrimary)
+                        CircularProgressIndicator(color = SagePrimary)
                     }
                 }
             }
 
-            // Section Title: Günün Namaz Vakitleri
+            // Section Title: Vakitler
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "VAKİTLER",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.5.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "GÜNÜN VAKİTLERİ",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.3.sp,
+                        color = TextSecondary
                     )
 
                     Text(
                         text = "Diyanet İşleri Başkanlığı",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        color = TextMuted
                     )
                 }
             }
@@ -248,7 +481,8 @@ fun PrayerTimesScreen(
                     val isEnabled = uiState.prayerNotificationToggles[prayer.type.name.lowercase()] ?: true
                     PrayerTimeRow(
                         item = prayer,
-                        isNotificationActive = isEnabled
+                        isNotificationActive = isEnabled,
+                        weatherInfo = uiState.prayerWeather[prayer.type]
                     )
                 }
             }
@@ -256,10 +490,6 @@ fun PrayerTimesScreen(
             // Daily Ayet & Hadis
             item {
                 DailyWisdomCard(wisdom = uiState.dailyWisdom)
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -272,14 +502,7 @@ fun PrayerTimesScreen(
             districts = uiState.districts,
             isFetchingDistricts = uiState.isFetchingDistricts,
             isDetectingLocation = uiState.isDetectingLocation,
-            onDetectLocation = {
-                locationPermissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    )
-                )
-            },
+            onDetectLocation = { triggerLocationDetection() },
             onDismiss = { showCitySheet = false },
             onCitySelected = { id, name ->
                 viewModel.selectCity(id, name)
@@ -289,4 +512,10 @@ fun PrayerTimesScreen(
             }
         )
     }
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

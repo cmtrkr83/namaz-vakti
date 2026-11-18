@@ -41,4 +41,13 @@ object NetworkClient {
     val diyanetLocationClient: DiyanetRetrofitClient by lazy {
         DiyanetRetrofitClient(baseUrl = BASE_URL, customOkHttpClient = okHttpClient)
     }
+
+    val weatherApi: WeatherApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://api.open-meteo.com/")
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+            .create(WeatherApiService::class.java)
+    }
 }

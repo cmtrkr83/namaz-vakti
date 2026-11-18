@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -31,12 +33,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material.icons.filled.NearMe
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MyLocation
+import androidx.compose.material.icons.outlined.NearMe
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -53,7 +52,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -62,13 +60,20 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.EmeraldPrimary
-import com.example.ui.theme.GoldPrimary
+import com.example.ui.theme.AppMonoFamily
+import com.example.ui.theme.SageCardSurface
+import com.example.ui.theme.SageCardVariant
+import com.example.ui.theme.SageHairlineBorder
+import com.example.ui.theme.SagePrimary
+import com.example.ui.theme.SagePrimaryMuted
+import com.example.ui.theme.TextMuted
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
+import com.example.ui.theme.WarmGoldAccent
 import com.example.ui.viewmodel.PrayerUiState
 import com.example.ui.viewmodel.PrayerViewModel
 import kotlin.math.cos
@@ -94,13 +99,12 @@ fun QiblaCompassScreen(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
-                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         if (granted) {
             viewModel.compassHelper.requestLocation(uiState.cityId)
         }
     }
 
-    // Trigger haptic when facing Qibla
     var wasFacingQibla by remember { mutableStateOf(false) }
     LaunchedEffect(compassState.isFacingQibla) {
         if (compassState.isFacingQibla && !wasFacingQibla) {
@@ -116,7 +120,7 @@ fun QiblaCompassScreen(
     )
 
     val dialBorderColor by animateColorAsState(
-        targetValue = if (compassState.isFacingQibla) EmeraldPrimary else GoldPrimary.copy(alpha = 0.6f),
+        targetValue = if (compassState.isFacingQibla) SagePrimary else SageHairlineBorder,
         label = "dialBorder"
     )
 
@@ -124,30 +128,30 @@ fun QiblaCompassScreen(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 120.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 124.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
-
         // Title & Location Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Kıble Pusulası",
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = TextPrimary
                 )
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = if (compassState.isGpsActive) "Canlı GPS Konumu" else "${uiState.cityName} (Şehir Koordinatları)",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = TextSecondary
                 )
             }
+
+            Spacer(modifier = Modifier.width(8.dp))
 
             OutlinedButton(
                 onClick = {
@@ -159,20 +163,23 @@ fun QiblaCompassScreen(
                     )
                 },
                 shape = RoundedCornerShape(14.dp),
-                modifier = Modifier.testTag("request_gps_location_button")
+                border = BorderStroke(0.8.dp, SagePrimary.copy(alpha = 0.4f)),
+                modifier = Modifier
+                    .heightIn(min = 48.dp)
+                    .testTag("request_gps_location_button")
             ) {
                 Icon(
-                    imageVector = Icons.Default.MyLocation,
+                    imageVector = Icons.Outlined.MyLocation,
                     contentDescription = null,
-                    tint = GoldPrimary,
+                    tint = SagePrimary,
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "GPS Konumu",
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = GoldPrimary
+                    fontWeight = FontWeight.SemiBold,
+                    color = SagePrimary
                 )
             }
         }
@@ -182,10 +189,10 @@ fun QiblaCompassScreen(
         // Alignment Status Banner
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = if (compassState.isFacingQibla) EmeraldPrimary.copy(alpha = 0.18f) else MaterialTheme.colorScheme.surfaceVariant,
-            border = androidx.compose.foundation.BorderStroke(
-                1.dp,
-                if (compassState.isFacingQibla) EmeraldPrimary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+            color = if (compassState.isFacingQibla) SagePrimaryMuted else SageCardSurface,
+            border = BorderStroke(
+                width = 0.8.dp,
+                color = if (compassState.isFacingQibla) SagePrimary.copy(alpha = 0.5f) else SageHairlineBorder
             ),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -195,52 +202,58 @@ fun QiblaCompassScreen(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = if (compassState.isFacingQibla) Icons.Default.CheckCircle else Icons.Default.NearMe,
+                    imageVector = if (compassState.isFacingQibla) Icons.Filled.CheckCircle else Icons.Outlined.NearMe,
                     contentDescription = null,
-                    tint = if (compassState.isFacingQibla) EmeraldPrimary else GoldPrimary,
-                    modifier = Modifier.size(22.dp)
+                    tint = if (compassState.isFacingQibla) SagePrimary else WarmGoldAccent,
+                    modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = if (compassState.isFacingQibla) "Kıbleye Yöneldiniz! Kâbe İstikametindesiniz" else "Telefonu düz tutup yeşil olana kadar çevirin",
+                    text = if (compassState.isFacingQibla) {
+                        "Kıbleye Yöneldiniz • Kâbe İstikameti"
+                    } else {
+                        "Telefonu düz tutup iğneyi hizalayın"
+                    },
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = if (compassState.isFacingQibla) EmeraldPrimary else MaterialTheme.colorScheme.onSurface
+                    fontWeight = FontWeight.Medium,
+                    color = if (compassState.isFacingQibla) SagePrimary else TextPrimary
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(26.dp))
 
-        // Big Minimalist Compass Dial
-        val centerHubColor = MaterialTheme.colorScheme.surface
+        // Light Airy Compass Dial with Clean Center Readout Hub
+        val needleColor = if (compassState.isFacingQibla) SagePrimary else WarmGoldAccent
+        val minorTickColor = TextMuted.copy(alpha = 0.55f)
+        val southNeedleColor = TextMuted.copy(alpha = 0.35f)
+        val hubBorderColor = if (compassState.isFacingQibla) SagePrimary.copy(alpha = 0.45f) else SageHairlineBorder
+
         Box(
             modifier = Modifier
-                .size(280.dp)
+                .size(276.dp)
                 .clip(CircleShape)
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            MaterialTheme.colorScheme.surface
+                            Color(0xFFF0F5F1),
+                            SageCardVariant
                         )
                     )
                 )
-                .border(2.dp, dialBorderColor, CircleShape)
+                .border(1.5.dp, dialBorderColor, CircleShape)
                 .testTag("compass_dial"),
             contentAlignment = Alignment.Center
         ) {
-            // Rotating Compass Marks and Needles
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val center = Offset(size.width / 2, size.height / 2)
                 val radius = size.width / 2 - 16.dp.toPx()
 
-                // Draw outer ring ticks
                 for (i in 0 until 360 step 15) {
                     val angleRad = Math.toRadians((i - animatedAzimuth).toDouble())
                     val isCardinal = i % 90 == 0
-                    val tickLen = if (isCardinal) 16.dp.toPx() else 8.dp.toPx()
-                    val strokeW = if (isCardinal) 2.5f else 1f
+                    val tickLen = if (isCardinal) 14.dp.toPx() else 7.dp.toPx()
+                    val strokeW = if (isCardinal) 2.2f else 1f
 
                     val startX = center.x + (radius - tickLen) * sin(angleRad).toFloat()
                     val startY = center.y - (radius - tickLen) * cos(angleRad).toFloat()
@@ -248,64 +261,60 @@ fun QiblaCompassScreen(
                     val endY = center.y - radius * cos(angleRad).toFloat()
 
                     drawLine(
-                        color = if (isCardinal) GoldPrimary else Color.Gray.copy(alpha = 0.5f),
+                        color = if (isCardinal) SagePrimary.copy(alpha = 0.85f) else minorTickColor,
                         start = Offset(startX, startY),
                         end = Offset(endX, endY),
                         strokeWidth = strokeW
                     )
                 }
 
-                // Draw Qibla Pointer Needle (Mecca direction)
                 val relativeQiblaAngle = compassState.qiblaAngle - animatedAzimuth
                 rotate(relativeQiblaAngle, pivot = center) {
-                    // Golden Kaaba Needle pointing Up
                     val needlePath = Path().apply {
-                        moveTo(center.x, center.y - radius + 10.dp.toPx())
-                        lineTo(center.x - 14.dp.toPx(), center.y - 30.dp.toPx())
-                        lineTo(center.x, center.y)
-                        lineTo(center.x + 14.dp.toPx(), center.y - 30.dp.toPx())
+                        moveTo(center.x, center.y - radius + 12.dp.toPx())
+                        lineTo(center.x - 13.dp.toPx(), center.y - 44.dp.toPx())
+                        lineTo(center.x, center.y - 36.dp.toPx())
+                        lineTo(center.x + 13.dp.toPx(), center.y - 44.dp.toPx())
                         close()
                     }
                     drawPath(
                         path = needlePath,
-                        color = if (compassState.isFacingQibla) EmeraldPrimary else GoldPrimary
+                        color = needleColor
                     )
 
-                    // South counter needle
                     val southNeedle = Path().apply {
-                        moveTo(center.x, center.y + radius - 20.dp.toPx())
-                        lineTo(center.x - 8.dp.toPx(), center.y + 20.dp.toPx())
-                        lineTo(center.x, center.y)
-                        lineTo(center.x + 8.dp.toPx(), center.y + 20.dp.toPx())
+                        moveTo(center.x, center.y + radius - 22.dp.toPx())
+                        lineTo(center.x - 7.dp.toPx(), center.y + 42.dp.toPx())
+                        lineTo(center.x, center.y + 36.dp.toPx())
+                        lineTo(center.x + 7.dp.toPx(), center.y + 42.dp.toPx())
                         close()
                     }
                     drawPath(
                         path = southNeedle,
-                        color = Color.Gray.copy(alpha = 0.4f)
+                        color = southNeedleColor
                     )
 
-                    // Kaaba symbol icon / dot at top of needle
                     drawCircle(
-                        color = if (compassState.isFacingQibla) EmeraldPrimary else GoldPrimary,
-                        radius = 8.dp.toPx(),
-                        center = Offset(center.x, center.y - radius + 10.dp.toPx())
+                        color = needleColor,
+                        radius = 7.dp.toPx(),
+                        center = Offset(center.x, center.y - radius + 12.dp.toPx())
                     )
                 }
 
-                // Center hub
+                // Clean frosted center hub ring for crisp heading text
                 drawCircle(
-                    color = centerHubColor,
-                    radius = 20.dp.toPx(),
+                    color = Color(0xFFEBF2ED),
+                    radius = 40.dp.toPx(),
                     center = center
                 )
                 drawCircle(
-                    color = if (compassState.isFacingQibla) EmeraldPrimary else GoldPrimary,
-                    radius = 12.dp.toPx(),
-                    center = center
+                    color = hubBorderColor,
+                    radius = 40.dp.toPx(),
+                    center = center,
+                    style = Stroke(width = 1.2.dp.toPx())
                 )
             }
 
-            // Cardinal Indicators (N, E, S, W) rotated with compass
             val headingInt = compassState.azimuth.toInt()
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -313,16 +322,20 @@ fun QiblaCompassScreen(
             ) {
                 Text(
                     text = "${headingInt}°",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = TextStyle(
+                        fontFamily = AppMonoFamily,
+                        fontSize = 21.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFeatureSettings = "tnum",
+                        color = TextPrimary
+                    )
                 )
                 Text(
                     text = "KUZEY",
                     style = MaterialTheme.typography.labelSmall,
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    fontSize = 9.sp,
+                    letterSpacing = 1.sp,
+                    color = TextSecondary
                 )
             }
         }
@@ -335,9 +348,9 @@ fun QiblaCompassScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surface,
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                shape = RoundedCornerShape(18.dp),
+                color = SageCardSurface,
+                border = BorderStroke(0.8.dp, SageHairlineBorder),
                 modifier = Modifier.weight(1f)
             ) {
                 Column(
@@ -347,22 +360,23 @@ fun QiblaCompassScreen(
                     Text(
                         text = "Kıble Açısı",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = TextSecondary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "${compassState.qiblaAngle.toInt()}°",
-                        style = MaterialTheme.typography.titleLarge,
+                        fontFamily = AppMonoFamily,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = GoldPrimary
+                        color = SagePrimary
                     )
                 }
             }
 
             Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surface,
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                shape = RoundedCornerShape(18.dp),
+                color = SageCardSurface,
+                border = BorderStroke(0.8.dp, SageHairlineBorder),
                 modifier = Modifier.weight(1f)
             ) {
                 Column(
@@ -372,25 +386,27 @@ fun QiblaCompassScreen(
                     Text(
                         text = "Kâbe'ye Mesafe",
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = TextSecondary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "${compassState.distanceKm} km",
-                        style = MaterialTheme.typography.titleLarge,
+                        fontFamily = AppMonoFamily,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = TextPrimary
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         // Calibration Tip Card
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            color = SageCardSurface,
+            border = BorderStroke(0.6.dp, SageHairlineBorder),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -398,22 +414,20 @@ fun QiblaCompassScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Info,
+                    imageVector = Icons.Outlined.Info,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = SagePrimary,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Pusulanın en doğru şekilde çalışması için cihazınızı metal ve manyetik kılıflardan uzak tutun, havada sekiz (8) çizerek kalibre edebilirsiniz.",
+                    text = "Doğru ölçüm için cihazı metal ve manyetik kılıflardan uzak tutun; havada sekiz (8) çizerek kalibre edebilirsiniz.",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = TextSecondary,
                     lineHeight = 18.sp
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 

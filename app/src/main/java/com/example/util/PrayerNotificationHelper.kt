@@ -78,7 +78,9 @@ object PrayerNotificationHelper {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
-        if (soundMode != "vibrate") {
+        if (soundMode == "vibrate") {
+            builder.setSilent(true)
+        } else {
             val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             builder.setSound(soundUri)
         }

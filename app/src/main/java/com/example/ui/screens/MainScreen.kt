@@ -1,8 +1,18 @@
 package com.example.ui.screens
 
-import androidx.compose.animation.animateColorAsState
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -11,54 +21,77 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.ui.theme.GoldLight
-import com.example.ui.theme.GoldPrimary
-import com.example.ui.theme.IslamicGreenGradient
-import com.example.ui.theme.LiquidGlassBackgroundBrush
-import com.example.ui.theme.LiquidGlassBorderBrush
-import com.example.ui.theme.TextPrimaryDark
-import com.example.ui.theme.TextSecondaryDark
+import com.example.ui.theme.SageCardSurface
+import com.example.ui.theme.SagePrimary
+import com.example.ui.theme.SereneSageGradient
+import com.example.ui.theme.TextPrimary
 import com.example.ui.viewmodel.PrayerViewModel
 
-sealed class AppNavTab(val index: Int, val title: String, val icon: ImageVector, val tag: String) {
-    object Prayers : AppNavTab(0, "Vakitler", Icons.Default.AccessTime, "nav_prayers")
-    object Monthly : AppNavTab(1, "İmsakiye", Icons.Default.CalendarMonth, "nav_monthly")
-    object Qibla : AppNavTab(2, "Kıble", Icons.Default.Explore, "nav_qibla")
-    object Notifications : AppNavTab(3, "Bildirim", Icons.Default.Notifications, "nav_notifications")
-    object Tasbih : AppNavTab(4, "Zikirmatik", Icons.Default.TouchApp, "nav_tasbih")
+sealed class AppNavTab(
+    val index: Int,
+    val title: String,
+    val activeIcon: ImageVector,
+    val inactiveIcon: ImageVector,
+    val tag: String
+) {
+    object Prayers : AppNavTab(
+        0, "Vakitler", Icons.Filled.AccessTimeFilled, Icons.Outlined.AccessTime, "nav_prayers"
+    )
+    object Monthly : AppNavTab(
+        1, "İmsakiye", Icons.Filled.CalendarMonth, Icons.Outlined.CalendarMonth, "nav_monthly"
+    )
+    object Qibla : AppNavTab(
+        2, "Kıble", Icons.Filled.Explore, Icons.Outlined.Explore, "nav_qibla"
+    )
+    object Notifications : AppNavTab(
+        3, "Bildirimler", Icons.Filled.Notifications, Icons.Outlined.Notifications, "nav_notifications"
+    )
+    object Tasbih : AppNavTab(
+        4, "Zikirmatik", Icons.Filled.TouchApp, Icons.Outlined.TouchApp, "nav_tasbih"
+    )
 }
 
 @Composable
@@ -68,6 +101,15 @@ fun MainScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+    var isMenuExpanded by rememberSaveable { mutableStateOf(false) }
+
+    BackHandler(enabled = isMenuExpanded || selectedTabIndex != 0) {
+        if (isMenuExpanded) {
+            isMenuExpanded = false
+        } else {
+            selectedTabIndex = 0
+        }
+    }
 
     val tabs = remember {
         listOf(
@@ -79,15 +121,17 @@ fun MainScreen(
         )
     }
 
-    // Root Container with continuous Islamic Emerald Gradient
+    // Root container with soft pastel sage gradient extending edge-to-edge
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(IslamicGreenGradient)
+            .background(SereneSageGradient)
     ) {
-        // Main Screen Content that extends all the way to the bottom edge
+        // Main Screen Content with top status bar safe inset
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
         ) {
             when (selectedTabIndex) {
                 0 -> PrayerTimesScreen(
@@ -117,118 +161,140 @@ fun MainScreen(
             }
         }
 
-        // Floating Liquid Frosted Glass Navigation Bar (No black background, true floating glass)
-        FloatingLiquidGlassNavBar(
+        // Dimmed Scrim when FAB Menu is Expanded
+        AnimatedVisibility(
+            visible = isMenuExpanded,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0x52172A22))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        isMenuExpanded = false
+                    }
+            )
+        }
+
+        // Expandable Floating Action Button Menu
+        FloatingNavigationMenu(
+            isExpanded = isMenuExpanded,
             selectedTabIndex = selectedTabIndex,
-            onTabSelected = { selectedTabIndex = it },
             tabs = tabs,
+            onToggle = { isMenuExpanded = !isMenuExpanded },
+            onTabSelected = { index ->
+                selectedTabIndex = index
+                isMenuExpanded = false
+            },
             modifier = Modifier
-                .align(Alignment.BottomCenter)
+                .align(Alignment.BottomEnd)
                 .navigationBarsPadding()
-                .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
+                .padding(end = 20.dp, bottom = 18.dp)
         )
     }
 }
 
 @Composable
-fun FloatingLiquidGlassNavBar(
+private fun FloatingNavigationMenu(
+    isExpanded: Boolean,
     selectedTabIndex: Int,
-    onTabSelected: (Int) -> Unit,
     tabs: List<AppNavTab>,
+    onToggle: () -> Unit,
+    onTabSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = 20.dp,
-                shape = RoundedCornerShape(32.dp),
-                spotColor = Color(0x99000000),
-                ambientColor = Color(0x4010B981)
-            )
-            .border(
-                width = 1.3.dp,
-                brush = LiquidGlassBorderBrush,
-                shape = RoundedCornerShape(32.dp)
-            ),
-        shape = RoundedCornerShape(32.dp),
-        color = Color.Transparent
+    val iconRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 90f else 0f,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "fabIconRotation"
+    )
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(LiquidGlassBackgroundBrush)
-                .padding(horizontal = 6.dp, vertical = 6.dp)
+        // Expandable Menu Pills
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = fadeIn() + slideInVertically(initialOffsetY = { it / 3 }) + scaleIn(initialScale = 0.92f),
+            exit = fadeOut() + slideOutVertically(targetOffsetY = { it / 3 }) + scaleOut(targetScale = 0.92f)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 tabs.forEach { tab ->
                     val isSelected = selectedTabIndex == tab.index
+                    val pillShape = RoundedCornerShape(18.dp)
 
-                    val animatedIconColor by animateColorAsState(
-                        targetValue = if (isSelected) GoldPrimary else TextSecondaryDark,
-                        label = "tabIconColor"
-                    )
-
-                    val animatedTextColor by animateColorAsState(
-                        targetValue = if (isSelected) GoldLight else TextSecondaryDark,
-                        label = "tabTextColor"
-                    )
-
-                    val animatedPillColor by animateColorAsState(
-                        targetValue = if (isSelected) Color(0x38F1C40F) else Color.Transparent,
-                        label = "tabPillColor"
-                    )
-
-                    val animatedPillBorder by animateColorAsState(
-                        targetValue = if (isSelected) Color(0x66F1C40F) else Color.Transparent,
-                        label = "tabPillBorder"
-                    )
-
-                    Box(
+                    Surface(
+                        onClick = { onTabSelected(tab.index) },
+                        shape = pillShape,
+                        color = if (isSelected) SagePrimary else SageCardSurface,
+                        border = BorderStroke(
+                            width = 0.9.dp,
+                            color = if (isSelected) SagePrimary else Color(0xCCFFFFFF)
+                        ),
                         modifier = Modifier
-                            .clip(RoundedCornerShape(22.dp))
-                            .background(animatedPillColor)
-                            .border(
-                                width = 1.dp,
-                                color = animatedPillBorder,
-                                shape = RoundedCornerShape(22.dp)
+                            .heightIn(min = 48.dp)
+                            .shadow(
+                                elevation = if (isSelected) 10.dp else 6.dp,
+                                shape = pillShape,
+                                clip = false,
+                                ambientColor = Color(0x1E172A22),
+                                spotColor = Color(0x2E172A22)
                             )
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = ripple(bounded = true, color = GoldPrimary)
-                            ) {
-                                onTabSelected(tab.index)
-                            }
-                            .padding(horizontal = 11.dp, vertical = 7.dp)
-                            .testTag(tab.tag),
-                        contentAlignment = Alignment.Center
+                            .testTag(tab.tag)
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = tab.icon,
-                                contentDescription = tab.title,
-                                tint = animatedIconColor,
-                                modifier = Modifier.size(21.dp)
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = tab.title,
-                                fontSize = 10.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                color = animatedTextColor,
-                                maxLines = 1
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                color = if (isSelected) Color.White else TextPrimary
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Icon(
+                                imageVector = if (isSelected) tab.activeIcon else tab.inactiveIcon,
+                                contentDescription = tab.title,
+                                tint = if (isSelected) Color.White else SagePrimary,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
                 }
             }
+        }
+
+        // Primary Floating Action Button
+        FloatingActionButton(
+            onClick = onToggle,
+            shape = RoundedCornerShape(20.dp),
+            containerColor = SagePrimary,
+            contentColor = Color.White,
+            elevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = 8.dp,
+                pressedElevation = 12.dp
+            ),
+            modifier = Modifier
+                .size(58.dp)
+                .testTag("fab_menu_toggle")
+        ) {
+            Icon(
+                imageVector = if (isExpanded) Icons.Filled.Close else Icons.Filled.Menu,
+                contentDescription = if (isExpanded) "Menüyü kapat" else "Menüyü aç",
+                modifier = Modifier
+                    .size(24.dp)
+                    .rotate(iconRotation)
+            )
         }
     }
 }

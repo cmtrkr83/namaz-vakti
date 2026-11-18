@@ -4,7 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,10 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.FormatQuote
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.FormatQuote
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,17 +26,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import com.example.data.local.DailyWisdom
-import com.example.ui.theme.GoldPrimary
+import com.example.ui.theme.AppSerifFamily
+import com.example.ui.theme.SageCardSurface
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
+import com.example.ui.theme.WarmGoldAccent
 
 @Composable
 fun DailyWisdomCard(
@@ -43,24 +48,27 @@ fun DailyWisdomCard(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val cardShape = RoundedCornerShape(22.dp)
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
-                shape = RoundedCornerShape(20.dp)
+            .shadow(
+                elevation = 6.dp,
+                shape = cardShape,
+                clip = false,
+                ambientColor = Color(0x1C172A22),
+                spotColor = Color(0x24172A22)
             )
             .testTag("daily_wisdom_card"),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 2.dp
+        shape = cardShape,
+        color = SageCardSurface,
+        border = BorderStroke(0.8.dp, Color(0xB3FFFFFF))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp)
+                .padding(horizontal = 18.dp, vertical = 16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -69,17 +77,16 @@ fun DailyWisdomCard(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.FormatQuote,
+                        imageVector = Icons.Outlined.FormatQuote,
                         contentDescription = null,
-                        tint = GoldPrimary,
-                        modifier = Modifier.size(20.dp)
+                        tint = WarmGoldAccent,
+                        modifier = Modifier.size(18.dp)
                     )
-                    Spacer(modifier = Modifier.size(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = wisdom.title,
                         style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = GoldPrimary
+                        color = WarmGoldAccent
                     )
                 }
 
@@ -90,29 +97,27 @@ fun DailyWisdomCard(
                         clipboard.setPrimaryClip(clip)
                         Toast.makeText(context, "Metin kopyalandı", Toast.LENGTH_SHORT).show()
                     },
-                    modifier = Modifier
-                        .size(32.dp)
-                        .testTag("copy_wisdom_button")
+                    modifier = Modifier.testTag("copy_wisdom_button")
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ContentCopy,
+                        imageVector = Icons.Outlined.ContentCopy,
                         contentDescription = "Kopyala",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(16.dp)
+                        tint = TextSecondary,
+                        modifier = Modifier.size(17.dp)
                     )
                 }
             }
 
             wisdom.arabic?.let { arabicText ->
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = arabicText,
                     fontSize = 20.sp,
                     lineHeight = 32.sp,
-                    fontFamily = FontFamily.Serif,
+                    fontFamily = AppSerifFamily,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = TextPrimary,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -121,19 +126,20 @@ fun DailyWisdomCard(
 
             Text(
                 text = "“${wisdom.text}”",
-                style = MaterialTheme.typography.bodyMedium,
+                fontFamily = AppSerifFamily,
+                fontSize = 15.sp,
                 fontStyle = FontStyle.Italic,
-                lineHeight = 22.sp,
-                color = MaterialTheme.colorScheme.onSurface
+                lineHeight = 23.sp,
+                color = TextPrimary
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
                 text = wisdom.source,
                 style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium,
+                color = TextSecondary,
                 textAlign = TextAlign.End,
                 modifier = Modifier.fillMaxWidth()
             )

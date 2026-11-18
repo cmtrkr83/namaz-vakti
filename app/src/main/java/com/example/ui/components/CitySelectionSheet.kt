@@ -46,7 +46,10 @@ import androidx.compose.ui.unit.dp
 import com.example.data.local.TurkishCitiesData
 import com.example.data.local.TurkishCity
 import com.example.data.model.DistrictDto
-import com.example.ui.theme.GoldPrimary
+import androidx.compose.foundation.BorderStroke
+import com.example.ui.theme.SagePrimary
+import com.example.ui.theme.SagePrimaryMuted
+import com.example.ui.theme.SageSheetSurface
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +81,7 @@ fun CitySelectionSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = SageSheetSurface,
         modifier = Modifier.testTag("city_selection_sheet")
     ) {
         Column(
@@ -136,9 +139,9 @@ fun CitySelectionSheet(
             if (selectedCityForDistricts == null) {
                 // GPS Auto-detect Location Button
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = GoldPrimary.copy(alpha = 0.12f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, GoldPrimary.copy(alpha = 0.4f)),
+                    shape = RoundedCornerShape(14.dp),
+                    color = SagePrimaryMuted,
+                    border = BorderStroke(0.8.dp, SagePrimary.copy(alpha = 0.4f)),
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable(enabled = !isDetectingLocation) {
@@ -153,7 +156,7 @@ fun CitySelectionSheet(
                     ) {
                         if (isDetectingLocation) {
                             CircularProgressIndicator(
-                                color = GoldPrimary,
+                                color = SagePrimary,
                                 modifier = Modifier.size(18.dp),
                                 strokeWidth = 2.dp
                             )
@@ -162,13 +165,13 @@ fun CitySelectionSheet(
                                 text = "Konum Tespit Ediliyor...",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = GoldPrimary
+                                color = SagePrimary
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.Default.MyLocation,
                                 contentDescription = null,
-                                tint = GoldPrimary,
+                                tint = SagePrimary,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -176,7 +179,7 @@ fun CitySelectionSheet(
                                 text = "Mevcut Konumumu Kullan (GPS)",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = GoldPrimary
+                                color = SagePrimary
                             )
                         }
                     }
@@ -199,7 +202,7 @@ fun CitySelectionSheet(
                     singleLine = true,
                     shape = RoundedCornerShape(14.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = GoldPrimary,
+                        focusedBorderColor = SagePrimary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     ),
                     modifier = Modifier
@@ -217,7 +220,7 @@ fun CitySelectionSheet(
                         val isSelected = city.id == currentCityId
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = if (isSelected) GoldPrimary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface,
+                            color = if (isSelected) SagePrimary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
@@ -238,7 +241,7 @@ fun CitySelectionSheet(
                                     Icon(
                                         imageVector = Icons.Default.LocationOn,
                                         contentDescription = null,
-                                        tint = if (isSelected) GoldPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        tint = if (isSelected) SagePrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
@@ -246,7 +249,7 @@ fun CitySelectionSheet(
                                         text = city.name,
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                        color = if (isSelected) GoldPrimary else MaterialTheme.colorScheme.onSurface
+                                        color = if (isSelected) SagePrimary else MaterialTheme.colorScheme.onSurface
                                     )
                                 }
 
@@ -254,7 +257,7 @@ fun CitySelectionSheet(
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = "Seçili",
-                                        tint = GoldPrimary,
+                                        tint = SagePrimary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
@@ -271,7 +274,7 @@ fun CitySelectionSheet(
                             .padding(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = GoldPrimary)
+                        CircularProgressIndicator(color = SagePrimary)
                     }
                 } else {
                     LazyColumn(
@@ -281,7 +284,7 @@ fun CitySelectionSheet(
                             val isSelected = district.ilceId == currentDistrictId
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = if (isSelected) GoldPrimary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface,
+                                color = if (isSelected) SagePrimary.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surface,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 4.dp)
@@ -302,14 +305,14 @@ fun CitySelectionSheet(
                                         text = district.ilceAdi,
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                        color = if (isSelected) GoldPrimary else MaterialTheme.colorScheme.onSurface
+                                        color = if (isSelected) SagePrimary else MaterialTheme.colorScheme.onSurface
                                     )
 
                                     if (isSelected) {
                                         Icon(
                                             imageVector = Icons.Default.Check,
                                             contentDescription = "Seçili",
-                                            tint = GoldPrimary,
+                                            tint = SagePrimary,
                                             modifier = Modifier.size(20.dp)
                                         )
                                     }

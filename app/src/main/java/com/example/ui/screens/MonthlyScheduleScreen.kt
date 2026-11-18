@@ -1,7 +1,6 @@
 package com.example.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,15 +26,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.local.PrayerTimeEntity
-import com.example.ui.theme.GoldPrimary
+import com.example.ui.theme.AppMonoFamily
+import com.example.ui.theme.SageCardSurface
+import com.example.ui.theme.SageCardVariant
+import com.example.ui.theme.SageHairlineBorder
+import com.example.ui.theme.SagePrimary
+import com.example.ui.theme.SagePrimaryMuted
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
 import com.example.ui.viewmodel.PrayerUiState
 import com.example.util.PrayerTimeHelper
 
@@ -50,49 +56,51 @@ fun MonthlyScheduleScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp)
             .testTag("monthly_schedule_screen")
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Title & Location Header
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Aylık İmsakiye",
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = TextPrimary
                 )
+                Spacer(modifier = Modifier.height(2.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.LocationOn,
+                        imageVector = Icons.Outlined.LocationOn,
                         contentDescription = null,
-                        tint = GoldPrimary,
+                        tint = SagePrimary,
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "${uiState.cityName} - ${uiState.districtName}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = TextSecondary
                     )
                 }
             }
 
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = GoldPrimary.copy(alpha = 0.15f)
+                color = SagePrimaryMuted,
+                border = BorderStroke(0.6.dp, SagePrimary.copy(alpha = 0.25f))
             ) {
                 Text(
                     text = "30 Günlük Diyanet",
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = GoldPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                    color = SagePrimary,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
                 )
             }
@@ -102,9 +110,12 @@ fun MonthlyScheduleScreen(
 
         // Table Header
         Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            modifier = Modifier.fillMaxWidth()
+            shape = RoundedCornerShape(14.dp),
+            color = SageCardVariant,
+            border = BorderStroke(0.6.dp, SageHairlineBorder),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -115,59 +126,21 @@ fun MonthlyScheduleScreen(
             ) {
                 Text(
                     text = "Tarih",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1.5f),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1.45f),
+                    color = TextSecondary
                 )
-                Text(
-                    text = "İmsak",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "Güneş",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "Öğle",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "İkindi",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "Akşam",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "Yatsı",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                listOf("İmsak", "Güneş", "Öğle", "İkindi", "Akşam", "Yatsı").forEach { header ->
+                    Text(
+                        text = header,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.weight(1f),
+                        color = TextSecondary
+                    )
+                }
             }
         }
 
@@ -180,15 +153,15 @@ fun MonthlyScheduleScreen(
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = GoldPrimary)
+                CircularProgressIndicator(color = SagePrimary)
             }
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                contentPadding = PaddingValues(bottom = 120.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 2.dp, bottom = 104.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(uiState.monthlyTimes, key = { it.id }) { item ->
                     val isToday = item.miladiTarihKisa == todayDateKisa
@@ -204,11 +177,30 @@ private fun MonthlyDayRow(
     item: PrayerTimeEntity,
     isToday: Boolean
 ) {
+    val monoTimeStyle = TextStyle(
+        fontFamily = AppMonoFamily,
+        fontSize = 11.5.sp,
+        fontFeatureSettings = "tnum",
+        fontWeight = if (isToday) FontWeight.SemiBold else FontWeight.Normal
+    )
+    val rowShape = RoundedCornerShape(16.dp)
+
     Surface(
-        shape = RoundedCornerShape(10.dp),
-        color = if (isToday) GoldPrimary.copy(alpha = 0.18f) else MaterialTheme.colorScheme.surface,
-        border = if (isToday) androidx.compose.foundation.BorderStroke(1.dp, GoldPrimary) else null,
-        modifier = Modifier.fillMaxWidth()
+        shape = rowShape,
+        color = if (isToday) Color(0xFFE4EFE8) else SageCardSurface,
+        border = BorderStroke(
+            width = if (isToday) 1.dp else 0.7.dp,
+            color = if (isToday) SagePrimary.copy(alpha = 0.5f) else Color(0xA6FFFFFF)
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = if (isToday) 7.dp else 3.dp,
+                shape = rowShape,
+                clip = false,
+                ambientColor = Color(0x18172A22),
+                spotColor = Color(0x22172A22)
+            )
     ) {
         Row(
             modifier = Modifier
@@ -217,76 +209,65 @@ private fun MonthlyDayRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1.5f)) {
+            Column(modifier = Modifier.weight(1.45f)) {
                 Text(
                     text = item.miladiTarihKisa.substringBeforeLast("."),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium,
-                    color = if (isToday) GoldPrimary else MaterialTheme.colorScheme.onSurface
+                    color = if (isToday) SagePrimary else TextPrimary
                 )
                 if (isToday) {
                     Text(
                         text = "Bugün",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = GoldPrimary
+                        fontWeight = FontWeight.SemiBold,
+                        color = SagePrimary
                     )
                 }
             }
 
             Text(
                 text = item.imsak,
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace,
+                style = monoTimeStyle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f),
-                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurface
+                color = if (isToday) SagePrimary else TextPrimary
             )
             Text(
                 text = item.gunes,
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace,
+                style = monoTimeStyle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = TextSecondary
             )
             Text(
                 text = item.ogle,
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace,
+                style = monoTimeStyle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f),
-                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurface
+                color = if (isToday) SagePrimary else TextPrimary
             )
             Text(
                 text = item.ikindi,
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace,
+                style = monoTimeStyle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f),
-                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurface
+                color = if (isToday) SagePrimary else TextPrimary
             )
             Text(
                 text = item.aksam,
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace,
+                style = monoTimeStyle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f),
-                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurface
+                color = if (isToday) SagePrimary else TextPrimary
             )
             Text(
                 text = item.yatsi,
-                style = MaterialTheme.typography.bodySmall,
-                fontFamily = FontFamily.Monospace,
+                style = monoTimeStyle,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f),
-                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurface
+                color = if (isToday) SagePrimary else TextPrimary
             )
         }
     }

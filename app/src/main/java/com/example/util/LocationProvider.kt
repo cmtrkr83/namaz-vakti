@@ -7,10 +7,10 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.location.LocationManager
 import android.os.Build
 import androidx.core.content.ContextCompat
 import com.example.data.local.TurkishCitiesData
-import com.example.data.local.TurkishCity
 import com.example.data.model.DiyanetLocationParams
 import com.example.data.model.PrayerTimeDto
 import com.example.data.remote.DiyanetRetrofitClient
@@ -46,6 +46,11 @@ data class LocationPrayerTimesResult(
     val prayerTimes: List<PrayerTimeDto>
 )
 
+private data class GeocodedPlace(
+    val cityName: String?,
+    val districtHint: String?
+)
+
 /**
  * Provider class using [FusedLocationProviderClient] to detect the user's geographic location,
  * resolve the nearest city/district, and fetch prayer times from the Diyanet Retrofit service.
@@ -57,7 +62,7 @@ class LocationProvider(
 ) {
 
     /**
-     * Checks if location permission has been granted.
+     * Checks if fine or coarse location permission has been granted.
      */
     fun hasLocationPermission(): Boolean {
         val fineGranted = ContextCompat.checkSelfPermission(
@@ -69,6 +74,21 @@ class LocationProvider(
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
         return fineGranted || coarseGranted
+    }
+
+    /**
+     * Checks if device location providers (GPS or Network) are enabled.
+     */
+    fun isLocationServiceEnabled(): Boolean {
+        return try {
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+            locationManager?.let {
+                it.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                    it.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            } ?: true
+        } catch (_: Exception) {
+            true
+        }
     }
 
     /**
@@ -121,20 +141,24 @@ class LocationProvider(
      * and [TurkishCitiesData] proximity matching.
      */
     suspend fun detectCity(latitude: Double, longitude: Double): DetectedCityInfo = withContext(Dispatchers.IO) {
-        val geocodedCityName = reverseGeocodeCityName(latitude, longitude)
+        val geocoded = reverseGeocodePlace(latitude, longitude)
 
-        // Try exact/partial match with Turkish city names first if geocoder returned something
-        if (!geocodedCityName.isNullOrBlank()) {
-            val matchedCity = TurkishCitiesData.cities.find {
-                it.name.contains(geocodedCityName.trim(), ignoreCase = true) ||
-                        geocodedCityName.contains(it.name, ignoreCase = true)
+        // Try normalized Turkish city match first
+        val candidateCity = geocoded?.cityName
+        if (!candidateCity.isNullOrBlank()) {
+            val normalizedCandidate = normalizeTurkish(candidateCity)
+            val matchedCity = TurkishCitiesData.cities.find { city ->
+                val normalizedTarget = normalizeTurkish(city.name)
+                normalizedTarget == normalizedCandidate ||
+                    normalizedCandidate.contains(normalizedTarget) ||
+                    normalizedTarget.contains(normalizedCandidate)
             }
             if (matchedCity != null) {
                 return@withContext DetectedCityInfo(
                     cityId = matchedCity.id,
                     cityName = matchedCity.name,
                     districtId = matchedCity.defaultDistrictId,
-                    districtName = matchedCity.name,
+                    districtName = geocoded.districtHint?.takeIf { it.isNotBlank() } ?: matchedCity.name,
                     latitude = latitude,
                     longitude = longitude,
                     isFromGps = true
@@ -164,14 +188,19 @@ class LocationProvider(
     suspend fun detectCityAndFetchPrayerTimes(): Result<LocationPrayerTimesResult> = withContext(Dispatchers.IO) {
         if (!hasLocationPermission()) {
             return@withContext Result.failure(
-                SecurityException("Konum izni verilmedi. Lütfen ayarlardan veya ekrandan konum izni veriniz.")
+                SecurityException("Konum izni verilmedi. Lütfen konum izni veriniz.")
             )
         }
 
         val location = getCurrentLocation()
-            ?: return@withContext Result.failure(
-                IllegalStateException("Mevcut konum tespit edilemedi. Lütfen GPS servisinin açık olduğunu kontrol edin.")
-            )
+        if (location == null) {
+            val message = if (!isLocationServiceEnabled()) {
+                "Konum servisi (GPS) kapalı. Lütfen cihaz ayarlarından konumu açın."
+            } else {
+                "Mevcut konum alınamadı. Lütfen açık alanda tekrar deneyin."
+            }
+            return@withContext Result.failure(IllegalStateException(message))
+        }
 
         try {
             val cityInfo = detectCity(location.latitude, location.longitude)
@@ -203,17 +232,48 @@ class LocationProvider(
     }
 
     /**
-     * Reverse geocodes latitude and longitude into a city name.
+     * Reverse geocodes latitude and longitude into city & district hints,
+     * using modern API 33+ async Geocoder callback with legacy fallback.
      */
-    private fun reverseGeocodeCityName(latitude: Double, longitude: Double): String? {
+    private suspend fun reverseGeocodePlace(latitude: Double, longitude: Double): GeocodedPlace? {
         return try {
             val geocoder = Geocoder(context, Locale("tr", "TR"))
-            @Suppress("DEPRECATION")
-            val addresses: List<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
-            val address = addresses?.firstOrNull()
-            address?.adminArea ?: address?.subAdminArea ?: address?.locality
+            val addresses: List<Address>? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                suspendCancellableCoroutine { continuation ->
+                    geocoder.getFromLocation(latitude, longitude, 1) { result ->
+                        if (continuation.isActive) continuation.resume(result)
+                    }
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                geocoder.getFromLocation(latitude, longitude, 1)
+            }
+            val address = addresses?.firstOrNull() ?: return null
+            GeocodedPlace(
+                cityName = address.adminArea ?: address.locality ?: address.subAdminArea,
+                districtHint = address.subAdminArea ?: address.locality
+            )
         } catch (_: Exception) {
             null
+        }
+    }
+
+    companion object {
+        fun normalizeTurkish(input: String): String {
+            return input.trim()
+                .replace('İ', 'I')
+                .replace('ı', 'i')
+                .replace('Ş', 'S')
+                .replace('ş', 's')
+                .replace('Ğ', 'G')
+                .replace('ğ', 'g')
+                .replace('Ü', 'U')
+                .replace('ü', 'u')
+                .replace('Ö', 'O')
+                .replace('ö', 'o')
+                .replace('Ç', 'C')
+                .replace('ç', 'c')
+                .uppercase(Locale.US)
         }
     }
 }

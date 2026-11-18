@@ -23,6 +23,19 @@ class PreferencesManager(context: Context) {
         get() = prefs.getString("district_name", "İSTANBUL") ?: "İSTANBUL"
         set(value) = prefs.edit().putString("district_name", value).apply()
 
+    // Location & Permission State
+    var autoLocationEnabled: Boolean
+        get() = prefs.getBoolean("auto_location_enabled", true)
+        set(value) = prefs.edit().putBoolean("auto_location_enabled", value).apply()
+
+    var hasRequestedLocationPermission: Boolean
+        get() = prefs.getBoolean("has_requested_location_permission", false)
+        set(value) = prefs.edit().putBoolean("has_requested_location_permission", value).apply()
+
+    var locationBannerDismissed: Boolean
+        get() = prefs.getBoolean("location_banner_dismissed", false)
+        set(value) = prefs.edit().putBoolean("location_banner_dismissed", value).apply()
+
     // Notifications
     fun isPrayerNotificationEnabled(prayerKey: String): Boolean {
         return prefs.getBoolean("notif_enabled_$prayerKey", true)

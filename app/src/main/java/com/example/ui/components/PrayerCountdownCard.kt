@@ -3,6 +3,7 @@ package com.example.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,9 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Explore
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -30,17 +31,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.DailyPrayerSchedule
-import com.example.ui.theme.GoldDark
-import com.example.ui.theme.GoldPrimary
+import com.example.ui.theme.AppMonoFamily
 import com.example.ui.theme.KerahatAmber
+import com.example.ui.theme.SageCardSurface
+import com.example.ui.theme.SageCardVariant
+import com.example.ui.theme.SageHairlineBorder
+import com.example.ui.theme.SagePrimary
+import com.example.ui.theme.SagePrimaryMuted
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
 import com.example.util.PrayerTimeHelper
 
 @Composable
@@ -49,24 +58,30 @@ fun PrayerCountdownCard(
     modifier: Modifier = Modifier
 ) {
     val countdownText = PrayerTimeHelper.formatSecondsToCountdown(schedule.remainingSecondsToNext)
+    val cardShape = RoundedCornerShape(26.dp)
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .border(
-                width = 1.dp,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        GoldPrimary.copy(alpha = 0.5f),
-                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                    )
-                ),
-                shape = RoundedCornerShape(24.dp)
+            .shadow(
+                elevation = 10.dp,
+                shape = cardShape,
+                clip = false,
+                ambientColor = Color(0x1E172A22),
+                spotColor = Color(0x2E172A22)
             )
             .testTag("prayer_countdown_card"),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 4.dp
+        shape = cardShape,
+        color = SageCardSurface,
+        border = BorderStroke(
+            width = 0.9.dp,
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color(0xD9FFFFFF),
+                    SageHairlineBorder
+                )
+            )
+        )
     ) {
         Box(
             modifier = Modifier
@@ -74,19 +89,19 @@ fun PrayerCountdownCard(
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            GoldPrimary.copy(alpha = 0.08f),
+                            SagePrimary.copy(alpha = 0.055f),
                             Color.Transparent
                         ),
-                        radius = 800f
+                        radius = 750f
                     )
                 )
-                .padding(20.dp)
+                .padding(horizontal = 20.dp, vertical = 20.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Header: Next prayer name & status
+                // Header: Next prayer label & exact time pill
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -95,51 +110,55 @@ fun PrayerCountdownCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(8.dp)
+                                .size(7.dp)
                                 .clip(CircleShape)
-                                .background(GoldPrimary)
+                                .background(SagePrimary)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "${schedule.nextPrayer.type.displayName.uppercase()} VAKTİNE KALAN SÜRE",
+                            text = "${schedule.nextPrayer.type.displayName.uppercase()} VAKTİNE KALAN",
                             style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.2.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 1.1.sp,
+                            color = TextSecondary
                         )
                     }
 
-                    // Next prayer exact time pill
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant
+                        shape = RoundedCornerShape(10.dp),
+                        color = SagePrimaryMuted,
+                        border = BorderStroke(0.6.dp, SagePrimary.copy(alpha = 0.25f))
                     ) {
                         Text(
                             text = schedule.nextPrayer.time,
-                            style = MaterialTheme.typography.labelSmall,
+                            fontFamily = AppMonoFamily,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = GoldPrimary,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            color = SagePrimary,
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
-                // Hero Countdown Timer
+                // Hero Countdown Timer with Tabular Numerals
                 Text(
                     text = countdownText,
-                    fontSize = 46.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontFamily = FontFamily.Monospace,
-                    letterSpacing = 2.sp,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    style = TextStyle(
+                        fontFamily = AppMonoFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 44.sp,
+                        letterSpacing = 1.5.sp,
+                        fontFeatureSettings = "tnum",
+                        color = TextPrimary
+                    ),
                     modifier = Modifier.testTag("countdown_timer_text")
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Progress Bar showing day/prayer period progress
+                // Prayer Period Progress Bar
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -150,25 +169,27 @@ fun PrayerCountdownCard(
                             .fillMaxWidth()
                             .height(6.dp)
                             .clip(RoundedCornerShape(3.dp)),
-                        color = GoldPrimary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                        color = SagePrimary,
+                        trackColor = SageCardVariant,
+                        strokeCap = StrokeCap.Round
                     )
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "${schedule.currentPrayer.type.displayName} (${schedule.currentPrayer.time})",
+                            text = "${schedule.currentPrayer.type.displayName} • ${schedule.currentPrayer.time}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = TextSecondary
                         )
                         Text(
-                            text = "${schedule.nextPrayer.type.displayName} (${schedule.nextPrayer.time})",
+                            text = "${schedule.nextPrayer.type.displayName} • ${schedule.nextPrayer.time}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            fontWeight = FontWeight.SemiBold,
+                            color = SagePrimary
                         )
                     }
                 }
@@ -179,37 +200,39 @@ fun PrayerCountdownCard(
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = KerahatAmber.copy(alpha = 0.15f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, KerahatAmber.copy(alpha = 0.4f)),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    Column {
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = KerahatAmber.copy(alpha = 0.1f),
+                            border = BorderStroke(0.8.dp, KerahatAmber.copy(alpha = 0.35f)),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Warning,
-                                contentDescription = "Kerahat Uyarısı",
-                                tint = KerahatAmber,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = schedule.kerahatReason ?: "Kerahat Vakti",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = KerahatAmber,
-                                fontWeight = FontWeight.Medium
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.WarningAmber,
+                                    contentDescription = "Kerahat Uyarısı",
+                                    tint = KerahatAmber,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = schedule.kerahatReason ?: "Kerahat Vakti",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = KerahatAmber,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Info Footer: Qibla Time & Current Period
+                // Subtle Info Footer
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -217,31 +240,31 @@ fun PrayerCountdownCard(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.Explore,
+                            imageVector = Icons.Outlined.Explore,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = SagePrimary,
                             modifier = Modifier.size(14.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = "Kıble Saati: ${schedule.kibleSaati}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = TextSecondary
                         )
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.AccessTime,
+                            imageVector = Icons.Outlined.AccessTime,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = TextSecondary,
                             modifier = Modifier.size(14.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = "Diyanet Takvimi",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = TextSecondary
                         )
                     }
                 }

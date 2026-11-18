@@ -11,12 +11,19 @@ import com.example.data.local.PrayerTimeEntity
 import com.example.data.local.TurkishCitiesData
 import com.example.data.model.DailyPrayerSchedule
 import com.example.data.model.DistrictDto
+import com.example.data.model.OpenMeteoResponse
+import com.example.data.model.PrayerType
+import com.example.data.model.PrayerWeatherInfo
 import com.example.data.remote.NetworkClient
 import com.example.data.repository.PrayerRepository
 import com.example.util.CompassSensorHelper
 import com.example.util.CompassState
+import com.example.util.LocationProvider
 import com.example.util.PrayerNotificationHelper
 import com.example.util.PrayerTimeHelper
+import com.example.util.WeatherHelper
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +32,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class PrayerUiState(
     val isLoading: Boolean = false,
@@ -53,7 +61,11 @@ data class PrayerUiState(
     val tasbihDhikrIndex: Int = 0,
     val dailyWisdom: DailyWisdom = DailyWisdomData.getTodayWisdom(),
     val testNotificationMessage: String? = null,
-    val isDetectingLocation: Boolean = false
+    val isDetectingLocation: Boolean = false,
+    val hasLocationPermission: Boolean = false,
+    val locationBannerDismissed: Boolean = false,
+    val isUsingAutoLocation: Boolean = true,
+    val prayerWeather: Map<PrayerType, PrayerWeatherInfo> = emptyMap()
 )
 
 class PrayerViewModel(application: Application) : AndroidViewModel(application) {
@@ -62,7 +74,9 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
     private val repository = PrayerRepository(db.prayerDao(), NetworkClient.diyanetApi)
     val preferences = PreferencesManager(application)
     val compassHelper = CompassSensorHelper(application)
-    val locationProvider = com.example.util.LocationProvider(application)
+    val locationProvider = LocationProvider(application)
+
+    private val initialPermissionGranted = locationProvider.hasLocationPermission()
 
     private val _uiState = MutableStateFlow(
         PrayerUiState(
@@ -83,7 +97,10 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
             ),
             tasbihCount = preferences.tasbihCount,
             tasbihTarget = preferences.tasbihTarget,
-            tasbihDhikrIndex = preferences.tasbihDhikrIndex
+            tasbihDhikrIndex = preferences.tasbihDhikrIndex,
+            hasLocationPermission = initialPermissionGranted,
+            locationBannerDismissed = preferences.locationBannerDismissed,
+            isUsingAutoLocation = preferences.autoLocationEnabled
         )
     )
     val uiState: StateFlow<PrayerUiState> = _uiState.asStateFlow()
@@ -92,6 +109,11 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
 
     private var currentRawEntity: PrayerTimeEntity? = null
     private var tickerJob: Job? = null
+    private var weatherJob: Job? = null
+    private var hasSyncedStartupLocation = false
+    private var currentCoordinates: Pair<Double, Double>? = null
+    private var cachedWeatherCoords: Pair<Double, Double>? = null
+    private var cachedWeatherResponse: OpenMeteoResponse? = null
 
     init {
         PrayerNotificationHelper.createNotificationChannel(application)
@@ -99,6 +121,11 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
         startClockTicker()
         loadDistrictsForCurrentCity()
         compassHelper.updateWithCity(preferences.cityId)
+
+        if (initialPermissionGranted && preferences.autoLocationEnabled) {
+            hasSyncedStartupLocation = true
+            detectLocationAndFetchPrayerTimes()
+        }
     }
 
     private fun startClockTicker() {
@@ -112,6 +139,34 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
                 delay(1000)
             }
         }
+    }
+
+    /**
+     * Re-checks OS location permission state (e.g. on ON_RESUME after returning from Settings
+     * or after runtime permission dialog) and auto-detects city if permission was newly granted.
+     */
+    fun refreshLocationPermissionState(autoFetchIfNewlyGranted: Boolean = true) {
+        val grantedNow = locationProvider.hasLocationPermission()
+        val previouslyGranted = _uiState.value.hasLocationPermission
+
+        _uiState.update {
+            it.copy(
+                hasLocationPermission = grantedNow,
+                locationBannerDismissed = if (grantedNow) false else it.locationBannerDismissed
+            )
+        }
+
+        if (grantedNow && autoFetchIfNewlyGranted && (!previouslyGranted || (!hasSyncedStartupLocation && preferences.autoLocationEnabled))) {
+            hasSyncedStartupLocation = true
+            preferences.autoLocationEnabled = true
+            _uiState.update { it.copy(isUsingAutoLocation = true) }
+            detectLocationAndFetchPrayerTimes()
+        }
+    }
+
+    fun dismissLocationBanner() {
+        preferences.locationBannerDismissed = true
+        _uiState.update { it.copy(locationBannerDismissed = true) }
     }
 
     fun loadPrayerTimes(forceRefresh: Boolean = false) {
@@ -134,6 +189,7 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
                         isLoading = false
                     )
                 }
+                refreshWeatherForSchedule(schedule, forceRefresh = false)
             }
 
             // 2. Fetch fresh times from Diyanet API
@@ -152,6 +208,8 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
                             isLoading = false
                         )
                     }
+
+                    refreshWeatherForSchedule(schedule, forceRefresh = forceRefresh)
 
                     // Schedule alarm notifications
                     PrayerNotificationHelper.schedulePrayerAlarms(
@@ -180,14 +238,22 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun selectCity(cityId: String, cityName: String) {
+    fun selectCity(cityId: String, cityName: String, fromManualPick: Boolean = true) {
+        if (fromManualPick) {
+            preferences.autoLocationEnabled = false
+        }
         preferences.cityId = cityId
         preferences.cityName = cityName
+        currentCoordinates = TurkishCitiesData.findCityById(cityId)?.let { it.latitude to it.longitude }
+        cachedWeatherResponse = null
+        cachedWeatherCoords = null
         _uiState.update {
             it.copy(
                 cityId = cityId,
                 cityName = cityName,
-                isFetchingDistricts = true
+                isFetchingDistricts = true,
+                isUsingAutoLocation = !fromManualPick,
+                prayerWeather = emptyMap()
             )
         }
         compassHelper.updateWithCity(cityId)
@@ -214,12 +280,14 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun selectDistrict(districtId: String, districtName: String) {
+        preferences.autoLocationEnabled = false
         preferences.districtId = districtId
         preferences.districtName = districtName
         _uiState.update {
             it.copy(
                 districtId = districtId,
-                districtName = districtName
+                districtName = districtName,
+                isUsingAutoLocation = false
             )
         }
         loadPrayerTimes(forceRefresh = true)
@@ -311,21 +379,71 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
 
     /**
      * Uses LocationProvider with FusedLocationProviderClient to automatically detect
-     * the user's city and fetch corresponding prayer times from the Retrofit service.
+     * the user's city & district and fetch corresponding prayer times from Diyanet API.
      */
     fun detectLocationAndFetchPrayerTimes(onCompleted: ((Boolean, String) -> Unit)? = null) {
+        if (_uiState.value.isDetectingLocation) return
         viewModelScope.launch {
-            _uiState.update { it.copy(isDetectingLocation = true, errorMessage = null) }
+            _uiState.update {
+                it.copy(
+                    isDetectingLocation = true,
+                    hasLocationPermission = locationProvider.hasLocationPermission(),
+                    errorMessage = null
+                )
+            }
             val result = locationProvider.detectCityAndFetchPrayerTimes()
             result.onSuccess { locationResult ->
                 val city = locationResult.cityInfo
-                selectCity(city.cityId, city.cityName)
-                _uiState.update { it.copy(isDetectingLocation = false) }
-                onCompleted?.invoke(true, "${city.cityName} konumu belirlendi ve vakitler güncellendi.")
+                preferences.autoLocationEnabled = true
+                preferences.cityId = city.cityId
+                preferences.cityName = city.cityName
+
+                // Match geocoded district hint against Diyanet district list if available
+                val districts = repository.fetchDistricts(city.cityId)
+                val normalizedHint = LocationProvider.normalizeTurkish(city.districtName)
+                val matchedDistrict = districts.find {
+                    val normDist = LocationProvider.normalizeTurkish(it.ilceAdi)
+                    normDist == normalizedHint || normalizedHint.contains(normDist) || normDist.contains(normalizedHint)
+                } ?: districts.firstOrNull()
+
+                val resolvedDistrictId = matchedDistrict?.ilceId ?: city.districtId
+                val resolvedDistrictName = matchedDistrict?.ilceAdi ?: city.cityName
+
+                preferences.districtId = resolvedDistrictId
+                preferences.districtName = resolvedDistrictName
+
+                currentCoordinates = city.latitude to city.longitude
+                cachedWeatherResponse = null
+                cachedWeatherCoords = null
+
+                compassHelper.updateCoordinates(
+                    lat = city.latitude,
+                    lon = city.longitude,
+                    name = "$resolvedDistrictName, ${city.cityName}",
+                    isGps = true
+                )
+
+                _uiState.update {
+                    it.copy(
+                        cityId = city.cityId,
+                        cityName = city.cityName,
+                        districtId = resolvedDistrictId,
+                        districtName = resolvedDistrictName,
+                        districts = districts,
+                        isDetectingLocation = false,
+                        hasLocationPermission = true,
+                        isUsingAutoLocation = true,
+                        prayerWeather = emptyMap()
+                    )
+                }
+
+                loadPrayerTimes(forceRefresh = true)
+                onCompleted?.invoke(true, "$resolvedDistrictName, ${city.cityName} konumu için vakitler güncellendi.")
             }.onFailure { err ->
                 _uiState.update {
                     it.copy(
                         isDetectingLocation = false,
+                        hasLocationPermission = locationProvider.hasLocationPermission(),
                         errorMessage = err.localizedMessage ?: "Konum tespit edilemedi."
                     )
                 }
@@ -334,9 +452,47 @@ class PrayerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    private fun resolveTargetCoordinates(cityId: String): Pair<Double, Double>? {
+        currentCoordinates?.takeIf { _uiState.value.isUsingAutoLocation }?.let { return it }
+        return TurkishCitiesData.findCityById(cityId)?.let { it.latitude to it.longitude }
+    }
+
+    private fun refreshWeatherForSchedule(schedule: DailyPrayerSchedule, forceRefresh: Boolean) {
+        val coords = resolveTargetCoordinates(_uiState.value.cityId) ?: return
+        val cached = cachedWeatherResponse
+        if (!forceRefresh && cached != null && cachedWeatherCoords == coords) {
+            val mapped = WeatherHelper.mapHourlyWeatherToPrayers(schedule, cached)
+            if (mapped.isNotEmpty()) {
+                _uiState.update { it.copy(prayerWeather = mapped) }
+                return
+            }
+        }
+
+        weatherJob?.cancel()
+        weatherJob = viewModelScope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) {
+                    NetworkClient.weatherApi.getHourlyWeather(
+                        latitude = coords.first,
+                        longitude = coords.second
+                    )
+                }
+                cachedWeatherCoords = coords
+                cachedWeatherResponse = response
+                val mapped = WeatherHelper.mapHourlyWeatherToPrayers(schedule, response)
+                _uiState.update { it.copy(prayerWeather = mapped) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // Keep default prayer icons gracefully if weather fetch fails
+            }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         tickerJob?.cancel()
+        weatherJob?.cancel()
         compassHelper.stopListening()
     }
 }

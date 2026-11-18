@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:padding="12dp">
 
-    <!-- Top Header: Location, Date & Diyanet Tag -->
+    <!-- Top Header: Location & Diyanet Tag -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="📍 İstanbul, Fatih"
-            android:textColor="#F8FAFC"
+            android:textColor="#192B24"
             android:textSize="12sp"
             android:textStyle="bold" />
 
@@ -36,7 +36,7 @@
             android:paddingRight="6dp"
             android:paddingBottom="2dp"
             android:text="DİYANET"
-            android:textColor="#D4AF37"
+            android:textColor="#2D6A56"
             android:textSize="10sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -63,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ŞU AN KILINABİLİR"
-                android:textColor="#52B788"
+                android:textColor="#2D6A56"
                 android:textSize="10sp"
                 android:textStyle="bold" />
 
@@ -75,7 +75,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Öğle Namazı"
-                android:textColor="#F8FAFC"
+                android:textColor="#192B24"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -84,7 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="13:00 - 16:18"
-                android:textColor="#A0BCB0"
+                android:textColor="#536C62"
                 android:textSize="11sp" />
         </LinearLayout>
 
@@ -94,7 +94,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            android:background="#24553F" />
+            android:background="#C3D6CC" />
 
         <!-- Right: Next Prayer & Countdown -->
         <LinearLayout
@@ -108,7 +108,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="SIRADAKİ VAKTE KALAN"
-                android:textColor="#F1C40F"
+                android:textColor="#8E6C30"
                 android:textSize="10sp"
                 android:textStyle="bold" />
 
@@ -120,7 +120,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="02:14:35"
-                android:textColor="#F1C40F"
+                android:textColor="#192B24"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -131,7 +131,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="İkindi (16:18)"
-                android:textColor="#A0BCB0"
+                android:textColor="#536C62"
                 android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
@@ -157,7 +157,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="İmsak\n05:26"
-            android:textColor="#F8FAFC"
+            android:textColor="#192B24"
             android:textSize="9sp" />
 
         <TextView
@@ -167,7 +167,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="Güneş\n06:50"
-            android:textColor="#A0BCB0"
+            android:textColor="#536C62"
             android:textSize="9sp" />
 
         <TextView
@@ -177,7 +177,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="Öğle\n13:00"
-            android:textColor="#F8FAFC"
+            android:textColor="#192B24"
             android:textSize="9sp" />
 
         <TextView
@@ -187,7 +187,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="İkindi\n16:18"
-            android:textColor="#F8FAFC"
+            android:textColor="#192B24"
             android:textSize="9sp" />
 
         <TextView
@@ -197,7 +197,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="Akşam\n18:56"
-            android:textColor="#F8FAFC"
+            android:textColor="#192B24"
             android:textSize="9sp" />
 
         <TextView
@@ -207,7 +207,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="Yatsı\n20:15"
-            android:textColor="#F8FAFC"
+            android:textColor="#192B24"
             android:textSize="9sp" />
     </LinearLayout>
 

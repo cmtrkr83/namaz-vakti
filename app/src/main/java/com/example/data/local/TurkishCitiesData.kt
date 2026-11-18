@@ -18,7 +18,7 @@ object TurkishCitiesData {
         TurkishCity("504", "AKSARAY", "9193", 38.3687, 34.0370, 157.0),
         TurkishCity("505", "AMASYA", "9201", 40.6501, 35.8353, 160.0),
         TurkishCity("506", "ANKARA", "9206", 39.9334, 32.8597, 153.0),
-        TurkishCity("507", "ANTALYAY", "9225", 36.8969, 30.7133, 147.0),
+        TurkishCity("507", "ANTALYA", "9225", 36.8969, 30.7133, 147.0),
         TurkishCity("508", "ARDAHAN", "9240", 41.1105, 42.7022, 184.0),
         TurkishCity("509", "ARTVİN", "9246", 41.1828, 41.8183, 181.0),
         TurkishCity("510", "AYDIN", "9252", 37.8560, 27.8416, 140.0),

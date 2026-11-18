@@ -6,6 +6,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,21 +14,24 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,15 +44,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.EmeraldPrimary
-import com.example.ui.theme.GoldPrimary
+import com.example.ui.theme.AppMonoFamily
+import com.example.ui.theme.AppSerifFamily
+import com.example.ui.theme.MintSoft
+import com.example.ui.theme.SageCardSurface
+import com.example.ui.theme.SageCardVariant
+import com.example.ui.theme.SageHairlineBorder
+import com.example.ui.theme.SagePrimary
+import com.example.ui.theme.SagePrimaryMuted
+import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
 import com.example.ui.viewmodel.PrayerUiState
 import com.example.ui.viewmodel.PrayerViewModel
 
@@ -66,14 +79,16 @@ fun TasbihScreen(
 ) {
     val context = LocalContext.current
 
-    val dhikrPresets = listOf(
-        DhikrPreset("Sübhânallah", "سُبْحَانَ اللَّهِ", 33),
-        DhikrPreset("Elhamdülillâh", "الْحَمْدُ لِلَّهِ", 33),
-        DhikrPreset("Allâhu Ekber", "اللَّهُ أَكْبَرُ", 33),
-        DhikrPreset("Lâ İlâhe İllallâh", "لَا إِلَهَ إِلَّا اللَّهُ", 100),
-        DhikrPreset("Estağfirullâh", "أَسْتَغْفِرُ اللَّهَ", 100),
-        DhikrPreset("Salavât-ı Şerîfe", "اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ", 100)
-    )
+    val dhikrPresets = remember {
+        listOf(
+            DhikrPreset("Sübhânallah", "سُبْحَانَ اللَّهِ", 33),
+            DhikrPreset("Elhamdülillâh", "الْحَمْدُ لِلَّهِ", 33),
+            DhikrPreset("Allâhu Ekber", "اللَّهُ أَكْبَرُ", 33),
+            DhikrPreset("Lâ İlâhe İllallâh", "لَا إِلَهَ إِلَّا اللَّهُ", 100),
+            DhikrPreset("Estağfirullâh", "أَسْتَغْفِرُ اللَّهَ", 100),
+            DhikrPreset("Salavât-ı Şerîfe", "اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ", 100)
+        )
+    }
 
     val currentDhikr = dhikrPresets.getOrElse(uiState.tasbihDhikrIndex) { dhikrPresets[0] }
     val progress = (uiState.tasbihCount % currentDhikr.target).toFloat() / currentDhikr.target.toFloat()
@@ -86,28 +101,29 @@ fun TasbihScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 120.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(top = 12.dp, bottom = 124.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
-
         // Title Header
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Zikirmatik",
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = TextPrimary
                 )
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "Sade ve huzurlu dijital tesbih",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = TextSecondary
                 )
             }
 
@@ -119,114 +135,109 @@ fun TasbihScreen(
                 modifier = Modifier.testTag("reset_tasbih_button")
             ) {
                 Icon(
-                    imageVector = Icons.Default.Refresh,
+                    imageVector = Icons.Outlined.Refresh,
                     contentDescription = "Sıfırla",
-                    tint = GoldPrimary
+                    tint = SagePrimary
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Dhikr selection chips
-        Row(
+        // Clean single-line horizontal scrollable Dhikr pills
+        LazyRow(
             modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            dhikrPresets.take(3).forEachIndexed { index, preset ->
+            itemsIndexed(dhikrPresets) { index, preset ->
                 val isSelected = uiState.tasbihDhikrIndex == index
-                FilterChip(
-                    selected = isSelected,
-                    onClick = {
-                        viewModel.selectTasbihDhikr(index)
-                        viewModel.setTasbihTarget(preset.target)
-                    },
-                    label = { Text(preset.title, fontSize = 12.sp) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = GoldPrimary,
-                        selectedLabelColor = MaterialTheme.colorScheme.surface
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = if (isSelected) SagePrimary else SageCardSurface,
+                    border = BorderStroke(
+                        width = 0.8.dp,
+                        color = if (isSelected) SagePrimary else SageHairlineBorder
                     ),
-                    modifier = Modifier.weight(1f).testTag("dhikr_chip_$index")
-                )
+                    modifier = Modifier
+                        .heightIn(min = 42.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .clickable {
+                            viewModel.selectTasbihDhikr(index)
+                            viewModel.setTasbihTarget(preset.target)
+                        }
+                        .testTag("dhikr_chip_$index")
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = preset.title,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                            color = if (isSelected) Color.White else TextPrimary,
+                            maxLines = 1
+                        )
+                    }
+                }
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            dhikrPresets.drop(3).forEachIndexed { relativeIndex, preset ->
-                val actualIndex = relativeIndex + 3
-                val isSelected = uiState.tasbihDhikrIndex == actualIndex
-                FilterChip(
-                    selected = isSelected,
-                    onClick = {
-                        viewModel.selectTasbihDhikr(actualIndex)
-                        viewModel.setTasbihTarget(preset.target)
-                    },
-                    label = { Text(preset.title, fontSize = 11.sp) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = GoldPrimary,
-                        selectedLabelColor = MaterialTheme.colorScheme.surface
-                    ),
-                    modifier = Modifier.weight(1f).testTag("dhikr_chip_$actualIndex")
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(22.dp))
 
         // Selected Dhikr Display
         Surface(
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surface,
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
-            modifier = Modifier.fillMaxWidth()
+            shape = RoundedCornerShape(22.dp),
+            color = SageCardSurface,
+            border = BorderStroke(0.8.dp, SageHairlineBorder),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
         ) {
             Column(
-                modifier = Modifier.padding(18.dp),
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = currentDhikr.arabic,
-                    fontSize = 28.sp,
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold,
-                    color = GoldPrimary,
+                    fontSize = 27.sp,
+                    fontFamily = AppSerifFamily,
+                    fontWeight = FontWeight.Medium,
+                    color = SagePrimary,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = currentDhikr.title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = TextPrimary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Hedef: ${currentDhikr.target} • Tur: ${(uiState.tasbihCount / currentDhikr.target) + 1}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = TextSecondary
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         // Big Touch Counter Circle
         Box(
             modifier = Modifier
-                .size(240.dp)
+                .size(236.dp)
                 .clip(CircleShape)
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            GoldPrimary.copy(alpha = 0.15f),
-                            MaterialTheme.colorScheme.surface
+                            Color(0xFFF0F5F1),
+                            SageCardVariant
                         )
                     )
                 )
-                .border(2.dp, GoldPrimary.copy(alpha = 0.5f), CircleShape)
+                .border(1.2.dp, SagePrimary.copy(alpha = 0.25f), CircleShape)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
@@ -239,13 +250,13 @@ fun TasbihScreen(
                 .testTag("tasbih_counter_button"),
             contentAlignment = Alignment.Center
         ) {
-            // Circular progress indicator around rim
             CircularProgressIndicator(
                 progress = { animatedProgress.value },
-                modifier = Modifier.size(236.dp),
-                color = GoldPrimary,
+                modifier = Modifier.size(232.dp),
+                color = SagePrimary,
                 strokeWidth = 5.dp,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                trackColor = MintSoft,
+                strokeCap = StrokeCap.Round
             )
 
             Column(
@@ -253,33 +264,36 @@ fun TasbihScreen(
             ) {
                 Text(
                     text = "${uiState.tasbihCount}",
-                    fontSize = 62.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = TextStyle(
+                        fontFamily = AppMonoFamily,
+                        fontSize = 58.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFeatureSettings = "tnum",
+                        color = TextPrimary
+                    )
                 )
                 Text(
                     text = "${uiState.tasbihCount % currentDhikr.target} / ${currentDhikr.target}",
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = TextSecondary
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = GoldPrimary.copy(alpha = 0.2f)
+                    color = SagePrimaryMuted,
+                    border = BorderStroke(0.6.dp, SagePrimary.copy(alpha = 0.25f))
                 ) {
                     Text(
                         text = "DOKUN",
                         style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = GoldPrimary,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.sp,
+                        color = SagePrimary,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                     )
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
@@ -296,7 +310,6 @@ private fun triggerTasbihHaptic(context: Context, isComplete: Boolean) {
         vibrator?.let {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (isComplete) {
-                    // Double buzz on target complete
                     val timings = longArrayOf(0, 100, 80, 150)
                     val amplitudes = intArrayOf(0, 255, 0, 255)
                     it.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))

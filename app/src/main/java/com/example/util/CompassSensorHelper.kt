@@ -82,7 +82,7 @@ class CompassSensorHelper(private val context: Context) : SensorEventListener {
         updateCoordinates(city.latitude, city.longitude, city.name, isGps = false)
     }
 
-    private fun updateCoordinates(lat: Double, lon: Double, name: String, isGps: Boolean) {
+    fun updateCoordinates(lat: Double, lon: Double, name: String, isGps: Boolean = true) {
         val qibla = QiblaCalculator.calculateQiblaAngle(lat, lon)
         val dist = QiblaCalculator.calculateDistanceToMeccaKm(lat, lon)
         _compassState.value = _compassState.value.copy(
