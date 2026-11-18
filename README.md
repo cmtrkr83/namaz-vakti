@@ -11,7 +11,7 @@
   <a href="https://www.buymeacoffee.com/cmtrkr"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black" alt="Buy Me a Coffee"></a>
 </p>
 
-Namaz Vakti is a minimalist Turkish prayer companion built with **Kotlin**, **Jetpack Compose (Material 3)**, **Room** and **Coroutines/Flow**. It fetches verified prayer times for all 81 provinces and districts from the **Diyanet** (Turkish Presidency of Religious Affairs) API, caches them offline, and presents them in a deep emerald-and-gold interface designed to stay readable day and night.
+Namaz Vakti is a minimalist Multi-lang prayer companion built with **Kotlin**, **Jetpack Compose (Material 3)**, **Room** and **Coroutines/Flow**. It fetches verified prayer times for all 81 provinces and districts from the **Diyanet** (Turkish Presidency of Religious Affairs) API, caches them offline, and presents them in a deep emerald-and-gold interface designed to stay readable day and night.
 
 There are no ads, no accounts, no analytics and no paid tiers.
 
